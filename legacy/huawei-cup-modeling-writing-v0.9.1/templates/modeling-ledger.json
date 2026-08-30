@@ -1,0 +1,61 @@
+{
+  "project": {
+    "title": "",
+    "source_files": [],
+    "entry": "fresh",
+    "checkpoint": "fresh",
+    "mode": "analysis"
+  },
+  "document": {
+    "master_source": "",
+    "source_creation_authorized": false,
+    "backup_path": "",
+    "source_format": "",
+    "document_target": "content-only",
+    "template_source": "none",
+    "template_path": "",
+    "competition_year": null,
+    "official_template_current": false,
+    "submission_template_verified": false,
+    "compile_engine": "",
+    "entrypoint": "",
+    "final_output": ""
+  },
+  "workflow": {
+    "current_stage": "problem-reading",
+    "stages": [
+      {
+        "name": "problem-reading",
+        "status": "NOT_STARTED",
+        "evidence": [],
+        "notes": ""
+      }
+    ]
+  },
+  "questions": [
+    {
+      "id": "Q1",
+      "task": "",
+      "inputs": [],
+      "outputs": [],
+      "hard_constraints": [],
+      "evaluation": [],
+      "model": "",
+      "evidence": []
+    }
+  ],
+  "data": [],
+  "parameters": [
+    {
+      "symbol": "",
+      "code_name": "",
+      "meaning": "",
+      "value": null,
+      "unit": "",
+      "source": "",
+      "status": "MISSING"
+    }
+  ],
+  "results": [],
+  "claims": []
+}

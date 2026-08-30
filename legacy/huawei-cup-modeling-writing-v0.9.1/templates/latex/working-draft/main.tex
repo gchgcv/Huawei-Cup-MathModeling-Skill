@@ -1,0 +1,70 @@
+% huawei-cup-modeling working draft template
+% IMPORTANT: This is NOT an official Huawei Cup / CPMCM submission template.
+% Use it only when no current editable template is available.
+% Before submission, migrate or verify formatting against the current official standard document.
+
+\documentclass[12pt,a4paper]{ctexart}
+
+\usepackage[left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{placeins} % use \FloatBarrier selectively if floats drift across logical boundaries
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0pt}
+\linespread{1.35}
+
+\numberwithin{equation}{section}
+\renewcommand{\theequation}{\thesection-\arabic{equation}}
+\renewcommand{\thefigure}{\thesection-\arabic{figure}}
+\renewcommand{\thetable}{\thesection-\arabic{table}}
+\makeatletter
+\@addtoreset{figure}{section}
+\@addtoreset{table}{section}
+\makeatother
+
+\begin{document}
+
+% WORKING DRAFT ONLY. Do not treat this layout as the current official competition template.
+
+\begin{center}
+    {\LARGE \textbf{论文题目}}\\[1em]
+\end{center}
+
+\begin{abstract}
+在此撰写摘要。只填写已经由正文和结果台账支撑的方法、结果与结论，不补造数据。
+
+\noindent\textbf{关键词：}关键词1；关键词2；关键词3
+\end{abstract}
+
+\section{问题重述}
+
+\section{问题分析}
+
+\section{模型假设}
+
+\section{符号说明}
+
+\section{模型建立与求解}
+
+\section{结果分析与模型检验}
+
+\section{模型评价}
+
+\section{结论}
+
+\begin{thebibliography}{99}
+% \bibitem{ref1} ...
+\end{thebibliography}
+
+\appendix
+\section{支撑材料说明}
+
+\end{document}

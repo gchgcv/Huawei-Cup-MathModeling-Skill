@@ -1,0 +1,37 @@
+project:
+  title: ""
+  ledger: ""
+  assessed_at: ""
+
+submission_status: DRAFT
+diagnostic_note: "Internal Diagnostic Score only; not an official competition score, final paper grade, or award prediction."
+
+gates:
+  question_coverage: {status: UNVERIFIED, evidence: []}
+  result_traceability: {status: UNVERIFIED, evidence: []}
+  cross_artifact_consistency: {status: UNVERIFIED, evidence: []}
+  model_validity: {status: UNVERIFIED, evidence: []}
+  validation_adequacy: {status: UNVERIFIED, evidence: []}
+  format_and_citation: {status: UNVERIFIED, evidence: []}
+  no_fabrication: {status: UNVERIFIED, evidence: []}
+  prose_clarity: {status: UNVERIFIED, evidence: []}
+
+issues: []
+# - id: I001
+#   code: RESULT_UNTRACEABLE
+#   severity: P0
+#   location: ""
+#   problem: ""
+#   evidence: []
+#   action: ""
+#   resolved: false
+
+scores:
+  question_and_task: {score: 0, max: 15, evidence: [], deduction: "尚未评估"}
+  data_traceability: {score: 0, max: 15, evidence: [], deduction: "尚未评估"}
+  model_reasonableness: {score: 0, max: 20, evidence: [], deduction: "尚未评估"}
+  solution_correctness: {score: 0, max: 20, evidence: [], deduction: "尚未评估"}
+  validation_robustness: {score: 0, max: 10, evidence: [], deduction: "尚未评估"}
+  logic_explanation: {score: 0, max: 10, evidence: [], deduction: "尚未评估"}
+  format_expression: {score: 0, max: 5, evidence: [], deduction: "尚未评估"}
+  contribution: {score: 0, max: 5, evidence: [], deduction: "尚未评估"}

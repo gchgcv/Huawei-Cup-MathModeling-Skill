@@ -1,0 +1,158 @@
+name: huawei-cup-modeling
+version: 0.9.1-writing
+description: Writing-first routing manifest for Chinese mathematical-modeling papers, with evidence-preserving handoff, academic prose review, anti-defensive rewriting, AI-style risk control, canonical figure outputs, rendered-PDF evidence, and submission-quality control.
+
+always_load:
+  - static/core/execution-contract.md
+  - static/core/consistency.md
+  - static/core/quality-gates.md
+
+axes:
+  entry:
+    detect: |
+      If usable intermediate work already exists, select handoff.
+      Existing work may begin at problem decomposition, data processing, model design, code, results, figures, or paper draft.
+      Do not restart upstream stages merely because this agent did not create them.
+    values:
+      fresh: static/fragments/entry/fresh.md
+      handoff: static/fragments/entry/handoff.md
+    multi: false
+
+  mode:
+    detect: |
+      Select the smallest mode that satisfies the user request.
+      Use micro-revision only for tightly localized edits with no model/result/global-template change.
+      Escalate micro-revision to revision if pagination, float placement, numbering, references, figures, or wider dependencies change.
+      Do not expand a local request into a full paper unless explicitly requested.
+    values:
+      analysis: static/fragments/mode/analysis.md
+      build: static/fragments/mode/build.md
+      paper: static/fragments/mode/paper.md
+      micro-revision: static/fragments/mode/micro-revision.md
+      revision: static/fragments/mode/revision.md
+      audit: static/fragments/mode/audit.md
+    multi: true
+
+
+  document_target:
+    detect: |
+      Resolve the document source before editing a paper file.
+      Preserve an existing editable source when available.
+      Do not create a new .tex source or parallel manuscript unless the user explicitly requests creation of a new LaTeX file.
+      Current official competition templates outrank user templates for submission formatting,
+      while user-provided current master files outrank newly created working drafts.
+      Never invent or silently label a fallback LaTeX layout as an official template.
+    values:
+      preserve-existing: static/fragments/document-target/preserve-existing.md
+      official-template: static/fragments/document-target/official-template.md
+      user-template: static/fragments/document-target/user-template.md
+      latex-working-draft: static/fragments/document-target/latex-working-draft.md
+      docx-working-draft: static/fragments/document-target/docx-working-draft.md
+      content-only: static/fragments/document-target/content-only.md
+    multi: false
+
+  stage:
+    detect: |
+      Load only stages required by the active mode and available evidence.
+      A downstream stage may be loaded only when its prerequisite evidence exists.
+    values:
+      problem-reading: static/fragments/stage/problem-reading.md
+      data-preprocessing-visualization: static/fragments/stage/data-preprocessing-visualization.md
+      model-construction: static/fragments/stage/model-construction.md
+      computation-experiment: static/fragments/stage/computation-experiment.md
+      result-visualization: static/fragments/stage/result-visualization.md
+      sensitivity-analysis: static/fragments/stage/sensitivity-analysis.md
+      model-validation: static/fragments/stage/model-validation.md
+      contribution-writing: static/fragments/stage/contribution-writing.md
+      paper-writing: static/fragments/stage/paper-writing.md
+      submission-audit: static/fragments/stage/submission-audit.md
+    multi: true
+
+evidence_requirements:
+  data-preprocessing-visualization:
+    requires: problem_definition
+  model-construction:
+    requires: problem_definition
+  computation-experiment:
+    requires: model_definition
+  result-visualization:
+    requires: traceable_results
+  sensitivity-analysis:
+    requires: executable_model_and_baseline_result
+  model-validation:
+    requires: model_output_or_theoretical_result
+  paper-writing:
+    requires: only_the_evidence_needed_for_the_sections_being_written
+
+  rule: |
+    Requirements are evidence prerequisites, not stage-history prerequisites.
+    Inherited artifacts may satisfy them after the minimum handoff check.
+    If only part of a requirement is missing, fill the shortest gap instead of rerunning all upstream stages.
+
+references:
+  on_demand:
+    - condition: detailed task decomposition or hidden constraint extraction
+      path: references/problem-reading.md
+    - condition: data cleaning, feature engineering, leakage control, or exploratory visualization
+      path: references/data-preprocessing-visualization.md
+    - condition: model selection, variables, objectives, constraints, baseline or solving strategy
+      path: references/model-construction.md
+    - condition: model-specific validation metrics and evidence boundaries
+      path: references/model-validation.md
+    - condition: official evaluation orientation, internal scoring, or submission judgment
+      path: references/evaluation-criteria.md
+    - condition: result chart selection and figure-text consistency
+      path: references/result-visualization.md
+    - condition: creating, regenerating, replacing, aliasing, cleaning, or auditing formal figure files in outputs/figures
+      path: references/figure-artifact-management.md
+    - condition: parameter, weight, scenario, seed or constraint sensitivity
+      path: references/sensitivity-analysis.md
+    - condition: defensible contribution or novelty wording
+      path: references/model-innovation.md
+    - condition: writing, rewriting, polishing, or auditing paper prose including abstract, main text, conclusion, captions, result interpretation, defensive writing, AI-like phrasing, or academic Chinese style
+      path: references/paper-prose-style.md
+    - condition: choosing or editing a LaTeX, Word, Markdown, PDF, existing manuscript, or competition template
+      path: references/document-editing.md
+    - condition: compiling LaTeX, reviewing a generated PDF, checking figure/table floats, pagination, clipping, whitespace, or final layout
+      path: references/latex-pdf-layout-audit.md
+    - condition: bibliography, reference search, citation verification, BibTeX, or checking whether sources are suitable for a paper
+      path: references/reference-management.md
+    - condition: paper structure, abstract, conclusion, or final writing checklist
+      path: references/paper-writing.md
+    - condition: sample paper organization or style imitation
+      path: references/sample-paper-style.md
+    - condition: Word equations, OMML, or DOCX equation validation
+      path: references/word-latex-formulas.md
+    - condition: paper depth, figure density, or length control
+      path: references/paper-depth-visual-density.md
+
+quality_gates:
+  - question_coverage
+  - result_traceability
+  - cross_artifact_consistency
+  - model_validity
+  - validation_adequacy
+  - format_and_citation
+  - no_fabrication
+  - prose_clarity
+
+validation_files:
+  - templates/modeling-ledger.json
+  - templates/quality-report.json
+  - templates/figure-manifest.json
+  - templates/latex-review.json
+  - scripts/validate_package.py
+  - scripts/validate_ledger.py
+  - scripts/validate_quality_report.py
+  - scripts/verify_docx_math.py
+  - scripts/lint_paper_style.py
+  - scripts/audit_latex_build.py
+  - scripts/audit_figure_outputs.py
+  - scripts/validate_latex_review.py
+
+
+bundled_templates:
+  - path: templates/latex/working-draft/main.tex
+    role: non_official_working_draft
+    compile_engine: xelatex
+    submission_eligible: false
