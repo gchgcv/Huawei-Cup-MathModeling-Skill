@@ -1,0 +1,57 @@
+{
+  "adjudication_status": "COMPLETED",
+  "writing_ab": {
+    "admission": "FAIL",
+    "confirmed_regressions": [
+      "Legacy shallow_result remains shallow and adds a derived value without source-fidelity permission.",
+      "Legacy and Modular both shorten protected LaTeX reference anchors in ai_worklog and shallow_result."
+    ],
+    "confirmed_hard_errors": [
+      "Under the case contract, changing \\ref{fig:result} or \\ref{fig:trend} to \\ref{fig} is a hard error.",
+      "Under the case contract, adding 0.17 or 1.7 percentage points is a hard error because new numbers are forbidden, even though those values are arithmetically derivable.",
+      "In general paper writing, the derived values are not factual errors by themselves; their hard-error status is specific to this conservative fidelity contract."
+    ],
+    "evaluator_overstrict_items": [
+      "不外推到未观测地区 and 不外推至未观测地区 are semantically equivalent; exact phrase mismatch is not a limitation loss.",
+      "能耗指标上不占优 and 其能耗指标不占优 preserve the same negative evidence; exact phrase mismatch is not evidence deletion.",
+      "Requiring the literal tokens 原因 and 意味着 is too narrow for semantic argument-depth assessment.",
+      "A future evaluator should distinguish traceable derived quantities from invented facts instead of treating every added number identically."
+    ],
+    "disputed_items": [
+      "The catalogs contain embedded expectations; no separate expected.json files exist.",
+      "Modular high_quality and necessary_limitation fail literal phrase assertions but preserve the relevant limitation and negative-evidence semantics."
+    ]
+  },
+  "review": {
+    "admission": "PASS",
+    "confirmed": [
+      "All 13 unique cases are read-only with no writes.",
+      "All 9 seeded-fault cases return an accepted Rule ID and all 4 resistance cases return empty findings.",
+      "Findings contain the required evidence-bearing contract fields."
+    ],
+    "limitations": [
+      "This is a short synthetic-case pass, not evidence of long-document review capability.",
+      "The cases do not validate cross-section consistency, source truth, citation authenticity, or severity calibration."
+    ]
+  },
+  "integration": {
+    "admission": "PASS",
+    "confirmed": [
+      "All 5 unique cases are read-only with no writes.",
+      "All declared hashes match independently recomputed UTF-8 SHA-256 values and Review does not mutate Writer text.",
+      "All five envelopes satisfy their current finding expectations and provide source-access limitations."
+    ],
+    "limitations": [
+      "findings_allowed is a weak assertion and does not require defect detection.",
+      "Review receives only rewritten text, so it cannot detect changes relative to protected source anchors or source numbers."
+    ]
+  },
+  "phase6_gate": "FAIL",
+  "rationale": [
+    "Writing A/B fails because protected LaTeX reference identity is changed.",
+    "The current case contract also rejects the added derived values.",
+    "Exact-phrase failures for the limitation and negative-evidence paraphrases are evaluator false positives at the semantic level.",
+    "Review synthetic PASS and Integration envelope PASS cannot offset Writing fidelity failure."
+  ],
+  "writes_performed": []
+}

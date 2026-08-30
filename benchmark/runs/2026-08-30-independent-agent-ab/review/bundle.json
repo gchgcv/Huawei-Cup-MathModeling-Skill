@@ -1,0 +1,82 @@
+{
+  "system_under_test": "modular-review",
+  "results": [
+    {
+      "case_id": "fault_disclaimer_first",
+      "review_result": {
+        "contract_version": "2", "task_id": "fault_disclaimer_first", "call_status": "SUCCESS", "status_meaning": "CALL_SUCCESS_ONLY_NOT_PAPER_QUALITY", "read_only": true, "writes_performed": [],
+        "findings": [{"finding_id": "fault_disclaimer_first-001", "rule_id": "ADW-006", "severity": "P2", "category": "defensive_writing", "claim": "段落先给出未外推声明，后呈现核心结果，限定语的前置位置遮蔽了结果主干。", "location": "case:fault_disclaimer_first", "evidence": [{"artifact_id": "paper", "locator": "case:fault_disclaimer_first", "reason": "未外推声明位于结果之前，但该限定不决定数值结果本身是否成立。", "quote": "本文不能证明模型适用于任何其他地区。本文结果为 12.5。"}], "recommendation": "先陈述结果及其适用对象，再在与外推解释直接相关的位置说明地区边界。", "confidence": "high", "limitations": []}],
+        "limitations": []
+      }
+    },
+    {
+      "case_id": "fault_hedge_stacking",
+      "review_result": {
+        "contract_version": "2", "task_id": "fault_hedge_stacking", "call_status": "SUCCESS", "status_meaning": "CALL_SUCCESS_ONLY_NOT_PAPER_QUALITY", "read_only": true, "writes_performed": [],
+        "findings": [{"finding_id": "fault_hedge_stacking-001", "rule_id": "ADW-004", "severity": "P2", "category": "uncertainty_expression", "claim": "多个模糊限定语叠加，却未说明不确定性的证据来源。", "location": "case:fault_hedge_stacking", "evidence": [{"artifact_id": "paper", "locator": "case:fault_hedge_stacking", "reason": "“可能”“或许”“在一定程度上”重复削弱主张，句中没有对应样本、检验、假设或数据缺口。", "quote": "该结果可能或许在一定程度上说明方案有效。"}], "recommendation": "删除重复限定，并依据实际样本、统计检验、模型假设或数据缺口明确说明不确定性。", "confidence": "high", "limitations": []}],
+        "limitations": []
+      }
+    },
+    {
+      "case_id": "fault_worklog",
+      "review_result": {
+        "contract_version": "2", "task_id": "fault_worklog", "call_status": "SUCCESS", "status_meaning": "CALL_SUCCESS_ONLY_NOT_PAPER_QUALITY", "read_only": true, "writes_performed": [],
+        "findings": [{"finding_id": "fault_worklog-001", "rule_id": "AI-001", "severity": "P2", "category": "ai_style", "claim": "文本按操作发生顺序罗列工作过程，没有呈现题目、模型、证据和结论之间的最终逻辑。", "location": "case:fault_worklog", "evidence": [{"artifact_id": "paper", "locator": "case:fault_worklog", "reason": "句子仅依次记录清洗、建模、求解和绘图，未说明这些环节如何支撑最终结论。", "quote": "首先清洗数据，随后建立模型，然后求解，最后绘图。"}], "recommendation": "围绕最终采用的数据处理、模型关系、求解输出及其结论作用重组表述。", "confidence": "high", "limitations": []}],
+        "limitations": []
+      }
+    },
+    {
+      "case_id": "fault_de_chain",
+      "review_result": {
+        "contract_version": "2", "task_id": "fault_de_chain", "call_status": "SUCCESS", "status_meaning": "CALL_SUCCESS_ONLY_NOT_PAPER_QUALITY", "read_only": true, "writes_performed": [],
+        "findings": [{"finding_id": "fault_de_chain-001", "rule_id": "AI-003", "severity": "P2", "category": "sentence_readability", "claim": "连续多重“的”字定语和抽象名词链遮蔽了句子主干及关系。", "location": "case:fault_de_chain", "evidence": [{"artifact_id": "paper", "locator": "case:fault_de_chain", "reason": "“多源数据—复杂约束条件—动态关系—综合评价模型”被连续定语嵌套，难以识别各对象之间的具体关系。", "quote": "基于多源数据的复杂约束条件的动态关系的综合评价模型的结果如下。"}], "recommendation": "拆分数据来源、约束、动态关系和模型输出，明确各对象的动作与关系。", "confidence": "high", "limitations": []}],
+        "limitations": []
+      }
+    },
+    {
+      "case_id": "fault_shallow_result",
+      "review_result": {
+        "contract_version": "2", "task_id": "fault_shallow_result", "call_status": "SUCCESS", "status_meaning": "CALL_SUCCESS_ONLY_NOT_PAPER_QUALITY", "read_only": true, "writes_performed": [],
+        "findings": [{"finding_id": "fault_shallow_result-001", "rule_id": "DEPTH-002", "severity": "P1", "category": "argument_depth", "claim": "结果讨论只复述曲线方向并给出空泛评价，缺少定量证据、解释及其对题目的意义。", "location": "case:fault_shallow_result", "evidence": [{"artifact_id": "paper", "locator": "case:fault_shallow_result", "reason": "“曲线上升”仅描述趋势，“结果较好”没有数值、比较基准或机理解释支撑。", "quote": "图 3 显示曲线上升，结果较好。"}], "recommendation": "补充关键数值或比较基准，解释上升趋势的模型或机理原因，并说明其如何回答对应子问题。", "confidence": "high", "limitations": []}],
+        "limitations": []
+      }
+    },
+    {
+      "case_id": "fault_correlation_as_causation",
+      "review_result": {
+        "contract_version": "2", "task_id": "fault_correlation_as_causation", "call_status": "SUCCESS", "status_meaning": "CALL_SUCCESS_ONLY_NOT_PAPER_QUALITY", "read_only": true, "writes_performed": [],
+        "findings": [{"finding_id": "fault_correlation_as_causation-001", "rule_id": "CLAIM-003", "severity": "P1", "category": "claim_evidence", "claim": "文本仅凭相关系数将相关关系表述为因果关系。", "location": "case:fault_correlation_as_causation", "evidence": [{"artifact_id": "paper", "locator": "case:fault_correlation_as_causation", "reason": "相关系数 0.71 只能直接支持共变关系，所给内容没有提供支持“A 导致 B”的因果设计或证据。", "quote": "变量 A 与 B 的相关系数为 0.71，因此 A 导致 B 增长。"}], "recommendation": "将结论限定为相关关系；只有在提供适配的因果识别设计与证据后才能作因果解释。", "confidence": "high", "limitations": []}],
+        "limitations": []
+      }
+    },
+    {
+      "case_id": "fault_simulation_as_observation",
+      "review_result": {
+        "contract_version": "2", "task_id": "fault_simulation_as_observation", "call_status": "SUCCESS", "status_meaning": "CALL_SUCCESS_ONLY_NOT_PAPER_QUALITY", "read_only": true, "writes_performed": [],
+        "findings": [{"finding_id": "fault_simulation_as_observation-001", "rule_id": "CLAIM-004", "severity": "P1", "category": "claim_evidence", "claim": "文本把仿真生成的数据当作真实地区的观测证据。", "location": "case:fault_simulation_as_observation", "evidence": [{"artifact_id": "paper", "locator": "case:fault_simulation_as_observation", "reason": "证据明确来自仿真，却据此断言真实地区均出现相同现象，混淆了模拟输出与真实观测的身份。", "quote": "仿真生成 100 组数据，证明真实地区均出现相同现象。"}], "recommendation": "明确结果属于仿真输出；若要讨论真实地区，需要提供独立观测数据及其与仿真的验证映射。", "confidence": "high", "limitations": []}],
+        "limitations": []
+      }
+    },
+    {
+      "case_id": "fault_single_split_robustness",
+      "review_result": {
+        "contract_version": "2", "task_id": "fault_single_split_robustness", "call_status": "SUCCESS", "status_meaning": "CALL_SUCCESS_ONLY_NOT_PAPER_QUALITY", "read_only": true, "writes_performed": [],
+        "findings": [{"finding_id": "fault_single_split_robustness-001", "rule_id": "CLAIM-005", "severity": "P1", "category": "claim_evidence", "claim": "一次随机划分测试不足以支撑普遍稳健性结论。", "location": "case:fault_single_split_robustness", "evidence": [{"artifact_id": "paper", "locator": "case:fault_single_split_robustness", "reason": "文本明确说明仅测试一次随机划分，却将结论外推为“普遍稳健性”，没有重复实验、敏感性检验或理论依据。", "quote": "模型仅在一次随机划分上测试，结果证明其具有普遍稳健性。"}], "recommendation": "将结论限定为该次划分下的表现，或补充重复划分、敏感性分析及适配的稳健性检验。", "confidence": "high", "limitations": []}],
+        "limitations": []
+      }
+    },
+    {
+      "case_id": "fault_abstract_number_mismatch",
+      "review_result": {
+        "contract_version": "2", "task_id": "fault_abstract_number_mismatch", "call_status": "SUCCESS", "status_meaning": "CALL_SUCCESS_ONLY_NOT_PAPER_QUALITY", "read_only": true, "writes_performed": [],
+        "findings": [{"finding_id": "fault_abstract_number_mismatch-001", "rule_id": "ABS-002", "severity": "P0", "category": "abstract_consistency", "claim": "摘要中的关键成本数字与正文中的最终成本不一致。", "location": "case:fault_abstract_number_mismatch", "evidence": [{"artifact_id": "paper", "locator": "case:fault_abstract_number_mismatch", "reason": "摘要报告成本为 12.5 万元。", "quote": "摘要：成本为 12.5 万元。"}, {"artifact_id": "paper", "locator": "case:fault_abstract_number_mismatch", "reason": "正文报告最终成本为 13.5 万元，与摘要相差 1.0 万元，且未说明二者属于不同口径或版本。", "quote": "正文：最终成本为 13.5 万元。"}], "recommendation": "核对有效结果来源，统一摘要与正文中的成本数值、单位、版本和含义；如口径不同，应明确说明关系。", "confidence": "high", "limitations": []}],
+        "limitations": []
+      }
+    },
+    {"case_id": "resistance_clean", "review_result": {"contract_version": "2", "task_id": "resistance_clean", "call_status": "SUCCESS", "status_meaning": "CALL_SUCCESS_ONLY_NOT_PAPER_QUALITY", "read_only": true, "writes_performed": [], "findings": [], "limitations": []}},
+    {"case_id": "resistance_technical_terms", "review_result": {"contract_version": "2", "task_id": "resistance_technical_terms", "call_status": "SUCCESS", "status_meaning": "CALL_SUCCESS_ONLY_NOT_PAPER_QUALITY", "read_only": true, "writes_performed": [], "findings": [], "limitations": []}},
+    {"case_id": "resistance_real_limitation", "review_result": {"contract_version": "2", "task_id": "resistance_real_limitation", "call_status": "SUCCESS", "status_meaning": "CALL_SUCCESS_ONLY_NOT_PAPER_QUALITY", "read_only": true, "writes_performed": [], "findings": [], "limitations": []}},
+    {"case_id": "resistance_real_uncertainty", "review_result": {"contract_version": "2", "task_id": "resistance_real_uncertainty", "call_status": "SUCCESS", "status_meaning": "CALL_SUCCESS_ONLY_NOT_PAPER_QUALITY", "read_only": true, "writes_performed": [], "findings": [], "limitations": []}}
+  ],
+  "writes_performed": []
+}

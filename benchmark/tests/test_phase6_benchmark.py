@@ -11,7 +11,6 @@ from typing import Any
 
 import yaml
 
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
 BENCHMARK_ROOT = REPO_ROOT / "benchmark"
 WRITING_EVALUATOR = BENCHMARK_ROOT / "writing" / "evaluate_writing.py"
@@ -126,6 +125,47 @@ def test_benchmarks_without_real_outputs_return_not_run() -> None:
     overall = aggregate.run(None, None, None, None)
     assert overall["status"] == aggregate.NOT_RUN
     assert overall["admission"] is None
+
+
+def test_evaluators_load_raw_agent_bundles(tmp_path: Path) -> None:
+    writing = _load_module("phase6_writing_bundle", WRITING_EVALUATOR)
+    review = _load_module("phase6_review_bundle", REVIEW_EVALUATOR)
+    integration = _load_module("phase6_integration_bundle", INTEGRATION_EVALUATOR)
+
+    writing_dir = tmp_path / "writing"
+    review_dir = tmp_path / "review"
+    integration_dir = tmp_path / "integration"
+    writing_dir.mkdir()
+    review_dir.mkdir()
+    integration_dir.mkdir()
+
+    (writing_dir / "bundle.json").write_text(
+        json.dumps(
+            {
+                "system_under_test": "modular-writing",
+                "outputs": [{"case_id": "case-1", "output_text": "text"}],
+            }
+        ),
+        encoding="utf-8",
+    )
+    (review_dir / "bundle.json").write_text(
+        json.dumps(
+            {
+                "results": [
+                    {"case_id": "case-1", "review_result": _review_result([])}
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    (integration_dir / "bundle.json").write_text(
+        json.dumps({"results": [{"case_id": "case-1", "value": 1}]}),
+        encoding="utf-8",
+    )
+
+    assert writing._load_candidates(writing_dir)["case-1"]["system_under_test"] == "modular-writing"
+    assert review._load_results(review_dir)["case-1"]["read_only"] is True
+    assert integration._load_results(integration_dir)["case-1"]["value"] == 1
 
 
 def test_writing_evaluator_accepts_evidence_preserving_scope_rewrite() -> None:

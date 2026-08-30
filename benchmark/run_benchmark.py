@@ -9,7 +9,6 @@ import sys
 from pathlib import Path
 from typing import Any
 
-
 BENCHMARK_ROOT = Path(__file__).resolve().parent
 NOT_RUN = "NOT_RUN_AGENT_OUTPUTS_UNAVAILABLE"
 

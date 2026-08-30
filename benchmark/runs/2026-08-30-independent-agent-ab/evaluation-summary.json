@@ -1,0 +1,39 @@
+{
+  "run_id": "2026-08-30-independent-agent-ab",
+  "status": "EXECUTED",
+  "automated_admission": "FAIL",
+  "independent_adjudication": "COMPLETED",
+  "phase6_gate": "FAIL",
+  "writing_ab": {
+    "admission": "FAIL",
+    "legacy_cases_passed": 3,
+    "modular_cases_passed": 2,
+    "legacy_hard_error_count": 6,
+    "modular_hard_error_count": 8,
+    "confirmed_blockers": [
+      "protected LaTeX reference anchors changed",
+      "new derived numbers violate the declared case contract"
+    ],
+    "semantic_overcount": [
+      "necessary limitation paraphrase was preserved",
+      "negative evidence paraphrase was preserved"
+    ]
+  },
+  "review": {
+    "admission": "PASS",
+    "cases_passed": 13,
+    "cases": 13,
+    "seeded_fault_recall": 1.0,
+    "false_positive_count": 0,
+    "mutation_count": 0
+  },
+  "integration": {
+    "admission": "PASS",
+    "cases_passed": 5,
+    "cases": 5,
+    "review_immutability_rate": 1.0,
+    "shared_rule_id_consistency_rate": 1.0,
+    "finding_handoff_coverage": 1.0
+  },
+  "next_allowed_work": "Repair Writing fidelity and refine semantic adjudication inside Phase 6; Phase 7 remains blocked."
+}

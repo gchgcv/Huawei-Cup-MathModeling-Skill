@@ -1,0 +1,24 @@
+schema_version: 1
+run_id: 2026-08-30-independent-agent-ab
+status: COMPLETED_FAIL
+generation_policy:
+  repository_write_allowed: false
+  benchmark_expectations_visible_to_generators: false
+  answer_artifact_access: false
+source_tasks:
+  legacy_writing:
+    thread_id: 01a05214-3f93-7df0-999e-ced590f688c8
+    title: Phase6 Legacy Writing Outputs
+  modular_writing:
+    thread_id: 01a05214-4257-7f03-9f15-0c28b7eba186
+    title: Phase6 Modular Writing Outputs
+  modular_review:
+    thread_id: 01a05214-4586-7b50-b898-62f09b77aaca
+    title: Phase6 Modular Review Outputs
+  integration:
+    thread_id: 01a0521b-9208-7d70-a63b-0004bf685a25
+    title: Phase6 Integration Agent Run
+  independent_adjudication:
+    thread_id: 01a05220-4cf8-7db0-b3e6-b0e4ec3923a3
+    title: Phase6 Independent Adjudication
+pending: []

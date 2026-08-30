@@ -13,7 +13,6 @@ from typing import Any
 
 import yaml
 
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
 REVIEW_VALIDATOR = (
     REPO_ROOT / "skills" / "huawei-cup-review" / "scripts" / "validate_review_result.py"
@@ -49,15 +48,34 @@ def _sha256_text(value: str) -> str:
 def load_catalog(path: Path) -> dict[str, Any]:
     value = yaml.safe_load(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict) or not isinstance(value.get("cases"), list):
-        raise ValueError("Integration catalog must be an object with cases")
+        raise TypeError("Integration catalog must be an object with cases")
     return value
 
 
 def _load_result(path: Path) -> dict[str, Any]:
     value = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict):
-        raise ValueError(f"Integration result must be an object: {path}")
+        raise TypeError(f"Integration result must be an object: {path}")
     return value
+
+
+def _load_results(results_dir: Path) -> dict[str, dict[str, Any]]:
+    bundle_path = results_dir / "bundle.json"
+    if bundle_path.is_file():
+        bundle = _load_result(bundle_path)
+        items = bundle.get("results")
+        if not isinstance(items, list):
+            raise ValueError("Integration bundle results must be a list")
+        return {
+            str(item["case_id"]): dict(item)
+            for item in items
+            if isinstance(item, Mapping) and isinstance(item.get("case_id"), str)
+        }
+    return {
+        path.stem: _load_result(path)
+        for path in results_dir.glob("*.json")
+        if path.name != "bundle.json"
+    }
 
 
 def evaluate_case(case: Mapping[str, Any], envelope: Mapping[str, Any]) -> dict[str, Any]:
@@ -125,11 +143,12 @@ def evaluate_benchmark(catalog_path: Path, results_dir: Path | None) -> dict[str
     cases = [item for item in catalog["cases"] if isinstance(item, Mapping)]
     if results_dir is None:
         return {"status": NOT_RUN, "cases_expected": len(cases), "metrics": None, "limitations": ["integration_results_not_supplied"]}
-    missing = [str(case["id"]) for case in cases if not (results_dir / f"{case['id']}.json").is_file()]
+    loaded_results = _load_results(results_dir)
+    missing = [str(case["id"]) for case in cases if str(case["id"]) not in loaded_results]
     if missing:
         return {"status": NOT_RUN, "cases_expected": len(cases), "metrics": None, "limitations": [f"missing_integration_results:{','.join(missing)}"]}
     results = [
-        evaluate_case(case, _load_result(results_dir / f"{case['id']}.json"))
+        evaluate_case(case, loaded_results[str(case["id"])])
         for case in cases
     ]
     valid = [item for item in results if item.get("metrics")]

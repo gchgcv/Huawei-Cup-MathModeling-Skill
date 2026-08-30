@@ -11,7 +11,6 @@ from typing import Any
 
 import yaml
 
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
 RESULT_VALIDATOR = (
     REPO_ROOT / "skills" / "huawei-cup-review" / "scripts" / "validate_review_result.py"
@@ -34,10 +33,10 @@ validate_review_result = _load_result_validator()
 def load_catalog(path: Path) -> dict[str, Any]:
     value = yaml.safe_load(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict) or not isinstance(value.get("cases"), list):
-        raise ValueError("Review catalog must be an object with cases")
+        raise TypeError("Review catalog must be an object with cases")
     policy = value.get("source_access_policy")
     if not isinstance(policy, Mapping):
-        raise ValueError("source_access_policy missing")
+        raise TypeError("source_access_policy missing")
     if policy.get("old_problem_training") is not False or policy.get("answer_artifact_access") is not False:
         raise ValueError("source access policy permits benchmark contamination")
     return value
@@ -46,8 +45,29 @@ def load_catalog(path: Path) -> dict[str, Any]:
 def _load_result(path: Path) -> dict[str, Any]:
     value = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict):
-        raise ValueError(f"Review result must be an object: {path}")
+        raise TypeError(f"Review result must be an object: {path}")
     return value
+
+
+def _load_results(results_dir: Path) -> dict[str, dict[str, Any]]:
+    bundle_path = results_dir / "bundle.json"
+    if bundle_path.is_file():
+        bundle = _load_result(bundle_path)
+        items = bundle.get("results")
+        if not isinstance(items, list):
+            raise ValueError("Review bundle results must be a list")
+        return {
+            str(item["case_id"]): dict(item["review_result"])
+            for item in items
+            if isinstance(item, Mapping)
+            and isinstance(item.get("case_id"), str)
+            and isinstance(item.get("review_result"), Mapping)
+        }
+    return {
+        path.stem: _load_result(path)
+        for path in results_dir.glob("*.json")
+        if path.name != "bundle.json"
+    }
 
 
 def evaluate_case(case: Mapping[str, Any], result: Mapping[str, Any]) -> dict[str, Any]:
@@ -113,11 +133,12 @@ def evaluate_benchmark(catalog_path: Path, results_dir: Path | None) -> dict[str
     cases = [item for item in catalog["cases"] if isinstance(item, Mapping)]
     if results_dir is None:
         return {"status": NOT_RUN, "cases_expected": len(cases), "metrics": None, "limitations": ["reviewer_results_not_supplied"]}
-    missing = [str(case["id"]) for case in cases if not (results_dir / f"{case['id']}.json").is_file()]
+    loaded_results = _load_results(results_dir)
+    missing = [str(case["id"]) for case in cases if str(case["id"]) not in loaded_results]
     if missing:
         return {"status": NOT_RUN, "cases_expected": len(cases), "metrics": None, "limitations": [f"missing_reviewer_results:{','.join(missing)}"]}
     results = [
-        evaluate_case(case, _load_result(results_dir / f"{case['id']}.json"))
+        evaluate_case(case, loaded_results[str(case["id"])])
         for case in cases
     ]
     valid = [item for item in results if item["metrics"] is not None]

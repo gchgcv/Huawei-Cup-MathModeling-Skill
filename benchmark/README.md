@@ -21,7 +21,7 @@
 
 Benchmark evaluator 不生成 Writer/Reviewer 内容。真实输出必须由被测系统独立产生，再以 JSON 放入调用方指定的 result directory。Evaluator 只读取 catalog/result，向 stdout 返回 JSON，不写 benchmark report。
 
-每个 result directory 以 `<case_id>.json` 命名文件：
+每个 result directory 可以使用逐 case 的 `<case_id>.json`，也可以保存一个原始 `bundle.json`：
 
 - Writing：`case_id`、`system_under_test`（`legacy-v0.9.1` 或 `modular-writing`）、`output_text`。
 - Review：符合 `../skills/huawei-cup-review/schemas/review-result.schema.json` 的 v2 result，`task_id` 可使用 case ID。

@@ -12,7 +12,6 @@ from typing import Any
 
 import yaml
 
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MUTATION_VALIDATOR = (
     REPO_ROOT / "skills" / "huawei-cup-writing" / "scripts" / "validate_manuscript_mutation.py"
@@ -36,15 +35,35 @@ compare_protected = _load_compare()
 def load_catalog(path: Path) -> dict[str, Any]:
     value = yaml.safe_load(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict) or not isinstance(value.get("cases"), list):
-        raise ValueError("Writing catalog must be an object with cases")
+        raise TypeError("Writing catalog must be an object with cases")
     return value
 
 
 def _load_candidate(path: Path) -> dict[str, Any]:
     value = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict):
-        raise ValueError(f"Candidate must be a JSON object: {path}")
+        raise TypeError(f"Candidate must be a JSON object: {path}")
     return value
+
+
+def _load_candidates(results_dir: Path) -> dict[str, dict[str, Any]]:
+    bundle_path = results_dir / "bundle.json"
+    if bundle_path.is_file():
+        bundle = _load_candidate(bundle_path)
+        system = bundle.get("system_under_test")
+        outputs = bundle.get("outputs")
+        if not isinstance(outputs, list):
+            raise ValueError("Writing bundle outputs must be a list")
+        return {
+            str(item["case_id"]): {**item, "system_under_test": system}
+            for item in outputs
+            if isinstance(item, Mapping) and isinstance(item.get("case_id"), str)
+        }
+    return {
+        path.stem: _load_candidate(path)
+        for path in results_dir.glob("*.json")
+        if path.name != "bundle.json"
+    }
 
 
 def _added_count(mutation: Mapping[str, Any], field: str) -> int:
@@ -111,12 +130,13 @@ def evaluate_system(catalog_path: Path, results_dir: Path | None) -> dict[str, A
     cases = [item for item in catalog["cases"] if isinstance(item, Mapping)]
     if results_dir is None:
         return {"status": NOT_RUN, "cases_expected": len(cases), "metrics": None, "limitations": ["candidate_results_not_supplied"]}
-    missing = [str(case["id"]) for case in cases if not (results_dir / f"{case['id']}.json").is_file()]
+    candidates = _load_candidates(results_dir)
+    missing = [str(case["id"]) for case in cases if str(case["id"]) not in candidates]
     if missing:
         return {"status": NOT_RUN, "cases_expected": len(cases), "metrics": None, "limitations": [f"missing_candidate_results:{','.join(missing)}"]}
 
     results = [
-        evaluate_case(case, _load_candidate(results_dir / f"{case['id']}.json"))
+        evaluate_case(case, candidates[str(case["id"])])
         for case in cases
     ]
     passed = [item for item in results if item["status"] == "PASS"]

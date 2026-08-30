@@ -1,0 +1,30 @@
+{
+  "system_under_test": "legacy-v0.9.1",
+  "outputs": [
+    {
+      "case_id": "defensive_scope",
+      "output_text": "本文以 A 市 2024 年数据为研究样本，方案成本为 12.5 万元，且模型满足 $x+y=1$，相关依据见\\cite{source-a}。据此得到的结论适用于当前样本覆盖范围，不外推至所有地区。"
+    },
+    {
+      "case_id": "ai_worklog",
+      "output_text": "对数据完成清洗后，本文建立模型并求解参数，得到目标值 8.4，计算结果见图\\ref{fig}。"
+    },
+    {
+      "case_id": "shallow_result",
+      "output_text": "图\\ref{fig}显示，指标由 0.62 上升至 0.79，增加了 0.17。"
+    },
+    {
+      "case_id": "high_quality",
+      "output_text": "在已观测的 30 个样本内，误差由 4.8% 降至 3.1%。这一变化与约束松弛后可行域的扩大一致，结论的适用范围限于已观测地区。"
+    },
+    {
+      "case_id": "technical_terms",
+      "output_text": "动态耦合机制通过拓扑约束进入稳健优化模型，其中参数 $\\lambda=0.3$ 用于控制惩罚强度。"
+    },
+    {
+      "case_id": "necessary_limitation",
+      "output_text": "在给定成本约束下，该方案可行，但在能耗指标上不占优。由于未控制季节因素，本结果不作因果解释。"
+    }
+  ],
+  "writes_performed": []
+}

@@ -1,0 +1,96 @@
+{
+  "system_under_test": "modular-writing-review",
+  "results": [
+    {
+      "case_id": "integration_defensive",
+      "writing_output_text": "本文结论限定于 A 市 2024 年数据所覆盖的情形，不外推至其他地区。在该数据范围内，方案成本为 12.5 万元，模型满足 $x+y=1$，相关依据见\\cite{source-a}。",
+      "writing_rule_ids": ["ADW-002", "ADW-003", "CLAIM-001", "CLAIM-002"],
+      "review_input_sha256": "eaa71de25028acc9204e60d3c2efba127c951dba9413c3a68ba541bc5acb0432",
+      "review_output_sha256": "eaa71de25028acc9204e60d3c2efba127c951dba9413c3a68ba541bc5acb0432",
+      "review_result": {
+        "contract_version": "2",
+        "task_id": "integration_defensive",
+        "call_status": "SUCCESS",
+        "status_meaning": "CALL_SUCCESS_ONLY_NOT_PAPER_QUALITY",
+        "read_only": true,
+        "writes_performed": [],
+        "findings": [],
+        "limitations": ["仅审查所提供的 output_text；未提供 source-a、数据来源或模型材料，无法核验成本数值、公式及引用的真实性与一致性。"]
+      },
+      "next_writer_handoff": {"finding_ids": [], "understood_rule_ids": []}
+    },
+    {
+      "case_id": "integration_ai_style",
+      "writing_output_text": "模型以清洗后的数据为输入，通过参数求解得到目标值 8.4，计算结果见图\\ref{fig}。",
+      "writing_rule_ids": ["AI-001", "CLAIM-002", "PROSE-001"],
+      "review_input_sha256": "19ed7c9eafbb4f1993ecb3e129e1e93bdf334bbfefad5fe03d70aac5f761a6a3",
+      "review_output_sha256": "19ed7c9eafbb4f1993ecb3e129e1e93bdf334bbfefad5fe03d70aac5f761a6a3",
+      "review_result": {
+        "contract_version": "2",
+        "task_id": "integration_ai_style",
+        "call_status": "SUCCESS",
+        "status_meaning": "CALL_SUCCESS_ONLY_NOT_PAPER_QUALITY",
+        "read_only": true,
+        "writes_performed": [],
+        "findings": [],
+        "limitations": ["仅审查所提供的 output_text；未提供图 fig、参数求解记录或相邻段落，无法核验目标值及图文一致性，也无法评估跨段落的模板化风险。"]
+      },
+      "next_writer_handoff": {"finding_ids": [], "understood_rule_ids": []}
+    },
+    {
+      "case_id": "integration_clean",
+      "writing_output_text": "在已观测的 30 个样本内，误差由 4.8% 降至 3.1%，下降了 1.7 个百分点。这一变化与约束松弛后可行域扩大的模型关系一致，但结论仅适用于已观测样本，不外推至未观测地区。",
+      "writing_rule_ids": ["ADW-002", "ADW-003", "CLAIM-001", "CLAIM-002", "DEPTH-002"],
+      "review_input_sha256": "1c5cbca37e9142f490126fb2538a13e0a20d3d107c767aa4f02b5189f8572a54",
+      "review_output_sha256": "1c5cbca37e9142f490126fb2538a13e0a20d3d107c767aa4f02b5189f8572a54",
+      "review_result": {
+        "contract_version": "2",
+        "task_id": "integration_clean",
+        "call_status": "SUCCESS",
+        "status_meaning": "CALL_SUCCESS_ONLY_NOT_PAPER_QUALITY",
+        "read_only": true,
+        "writes_performed": [],
+        "findings": [],
+        "limitations": ["仅审查所提供的 output_text；未提供样本、误差计算结果或模型定义，无法独立核验数值及约束松弛解释。"]
+      },
+      "next_writer_handoff": {"finding_ids": [], "understood_rule_ids": []}
+    },
+    {
+      "case_id": "integration_limitation",
+      "writing_output_text": "在给定成本约束下，该方案保持可行，但其能耗指标不占优。由于模型未控制季节因素，现有结果仅用于描述观测关系，不作因果解释。",
+      "writing_rule_ids": ["ADW-002", "ADW-004", "CLAIM-003", "CLAIM-006", "DEPTH-005"],
+      "review_input_sha256": "23357a880f50db648ddfb0a4f6d363a6b3c2f0f10a2c6a2cd2da540451ed49bb",
+      "review_output_sha256": "23357a880f50db648ddfb0a4f6d363a6b3c2f0f10a2c6a2cd2da540451ed49bb",
+      "review_result": {
+        "contract_version": "2",
+        "task_id": "integration_limitation",
+        "call_status": "SUCCESS",
+        "status_meaning": "CALL_SUCCESS_ONLY_NOT_PAPER_QUALITY",
+        "read_only": true,
+        "writes_performed": [],
+        "findings": [],
+        "limitations": ["仅审查所提供的 output_text；未提供成本约束、可行性结果、能耗比较或季节因素相关材料，无法核验这些事实性陈述。"]
+      },
+      "next_writer_handoff": {"finding_ids": [], "understood_rule_ids": []}
+    },
+    {
+      "case_id": "integration_terminology",
+      "writing_output_text": "动态耦合机制以拓扑约束的形式纳入稳健优化模型，其中参数 $\\lambda=0.3$ 用于控制惩罚强度。",
+      "writing_rule_ids": ["TERM-001", "TERM-002", "TERM-004"],
+      "review_input_sha256": "d6977a8b7a97da2e4204632cce281946a2fd11c017e24b783484cbd346ac1a37",
+      "review_output_sha256": "d6977a8b7a97da2e4204632cce281946a2fd11c017e24b783484cbd346ac1a37",
+      "review_result": {
+        "contract_version": "2",
+        "task_id": "integration_terminology",
+        "call_status": "SUCCESS",
+        "status_meaning": "CALL_SUCCESS_ONLY_NOT_PAPER_QUALITY",
+        "read_only": true,
+        "writes_performed": [],
+        "findings": [],
+        "limitations": ["仅审查所提供的 output_text；未提供模型定义、符号表或上下文，无法核验术语与参数在全文中的定义及语义一致性。"]
+      },
+      "next_writer_handoff": {"finding_ids": [], "understood_rule_ids": []}
+    }
+  ],
+  "writes_performed": []
+}

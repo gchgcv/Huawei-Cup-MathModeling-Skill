@@ -1,0 +1,30 @@
+{
+  "system_under_test": "modular-writing",
+  "outputs": [
+    {
+      "case_id": "defensive_scope",
+      "output_text": "本文结论限定于 A 市 2024 年数据所覆盖的情形，不外推至其他地区。在该数据范围内，方案成本为 12.5 万元，模型满足 $x+y=1$，相关依据见\\cite{source-a}。"
+    },
+    {
+      "case_id": "ai_worklog",
+      "output_text": "模型以清洗后的数据为输入，通过参数求解得到目标值 8.4，计算结果见图\\ref{fig}。"
+    },
+    {
+      "case_id": "shallow_result",
+      "output_text": "图\\ref{fig}显示，指标由 0.62 上升至 0.79，绝对增幅为 0.17，表明该指标在图示条件下有所提高。现有证据尚不足以解释这一变化的形成机制。"
+    },
+    {
+      "case_id": "high_quality",
+      "output_text": "在已观测的 30 个样本内，误差由 4.8% 降至 3.1%，下降了 1.7 个百分点。这一变化与约束松弛后可行域扩大的模型关系一致，但结论仅适用于已观测样本，不外推至未观测地区。"
+    },
+    {
+      "case_id": "technical_terms",
+      "output_text": "动态耦合机制以拓扑约束的形式纳入稳健优化模型，其中参数 $\\lambda=0.3$ 用于控制惩罚强度。"
+    },
+    {
+      "case_id": "necessary_limitation",
+      "output_text": "在给定成本约束下，该方案保持可行，但其能耗指标不占优。由于模型未控制季节因素，现有结果仅用于描述观测关系，不作因果解释。"
+    }
+  ],
+  "writes_performed": []
+}
