@@ -12,19 +12,21 @@ ROUTER_ROOT = REPO_ROOT / "compat" / "huawei-cup-modeling"
 BASELINE_TAG = "baseline-v0.9.1-writing"
 
 
-def _git(*args: str) -> str:
+def _git_bytes(*args: str) -> bytes:
     result = subprocess.run(
         ["git", *args],
         cwd=REPO_ROOT,
         check=True,
         capture_output=True,
-        text=True,
-        encoding="utf-8",
     )
     return result.stdout
 
 
-def test_legacy_directory_matches_frozen_tag_after_git_normalization() -> None:
+def _git(*args: str) -> str:
+    return _git_bytes(*args).decode("utf-8")
+
+
+def test_legacy_directory_matches_frozen_tag_byte_for_byte() -> None:
     prefix = LEGACY_RELATIVE.as_posix() + "/"
     tracked = [
         line
@@ -35,6 +37,11 @@ def test_legacy_directory_matches_frozen_tag_after_git_normalization() -> None:
     assert not _git("diff", "--name-only", BASELINE_TAG, "--", prefix).strip()
     untracked = _git("ls-files", "--others", "--exclude-standard", "--", prefix)
     assert not untracked.strip()
+    for tracked_path in tracked:
+        worktree_path = REPO_ROOT / tracked_path
+        assert worktree_path.read_bytes() == _git_bytes(
+            "show", f"{BASELINE_TAG}:{tracked_path}"
+        ), tracked_path
 
 
 def test_legacy_identity_and_version_remain_historical() -> None:

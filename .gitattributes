@@ -1,0 +1,2 @@
+# Frozen Legacy baseline: preserve every tracked blob byte-for-byte on checkout.
+legacy/huawei-cup-modeling-writing-v0.9.1/** -text
