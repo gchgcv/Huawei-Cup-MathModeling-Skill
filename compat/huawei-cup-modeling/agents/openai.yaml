@@ -1,0 +1,7 @@
+interface:
+  display_name: "华为杯数学建模（兼容路由）"
+  short_description: "将旧论文入口转发到模块化 Writing 或只读 Review"
+  default_prompt: "使用 $huawei-cup-modeling 只做兼容路由。论文建设任务转到 $huawei-cup-writing，论文审核任务转到只读的 $huawei-cup-review。Analysis/Modeling、Coding/Visual、ledger 和 submission state 当前返回 BLOCKED_UNSUPPORTED_ROUTE；不得回退到 legacy baseline。"
+
+policy:
+  allow_implicit_invocation: false

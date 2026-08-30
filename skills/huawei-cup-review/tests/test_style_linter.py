@@ -14,7 +14,7 @@ def run(tmp_path: Path, text: str, strict: bool = True):
     cmd = [sys.executable, str(SCRIPT), str(p)]
     if strict:
         cmd.append("--strict")
-    return subprocess.run(cmd, text=True, capture_output=True)
+    return subprocess.run(cmd, check=False, text=True, capture_output=True)
 
 
 def test_high_risk_phrase_fails_strict(tmp_path):
@@ -38,6 +38,27 @@ def test_defensive_scope_is_warning_not_automatic_error(tmp_path):
     r = run(tmp_path, "本文并不声称该模型适用于所有场景，只用于当前样本分析。")
     assert r.returncode == 0
     assert "defensive/negative scope framing" in r.stdout
+
+
+def test_paragraph_final_negative_scope_is_flagged(tmp_path):
+    text = "跨评委组的稳定增量判定仍未通过。\n\n问题四的验证协议未包含独立外部测试。"
+    r = run(tmp_path, text)
+    assert r.returncode == 0
+    assert r.stdout.count("paragraph-final negative scope") == 2
+
+
+def test_positive_evidence_scope_is_not_flagged_as_negative_ending(tmp_path):
+    text = "结果表现出模型与评委组依赖性，证据范围定位为特定条件下的预测变化。当前结果反映模型在内部交叉验证下的表现，外部泛化能力还需在独立样本上进一步检验。"
+    r = run(tmp_path, text)
+    assert r.returncode == 0
+    assert "paragraph-final negative scope" not in r.stdout
+
+
+def test_mid_paragraph_negative_result_with_positive_scope_is_not_flagged(tmp_path):
+    text = "独立检验未达到显著性水平。该结果适用于当前样本的组间比较。"
+    r = run(tmp_path, text)
+    assert r.returncode == 0
+    assert "paragraph-final negative scope" not in r.stdout
 
 
 def test_hedge_stacking_is_flagged(tmp_path):

@@ -1,5 +1,8 @@
 # Shared Contracts
 
+Contract versions in Suite `1.0.0-rc1`: Project Facts `1`, Review Finding `1`, and
+Paper Artifact `1`. Review's call-result envelope remains component-owned v2.
+
 本目录定义 Writing、Review 与后续建模/编码能力之间共享的数据形状，不是可调用 Skill，也不拥有 workflow、severity policy 或 submission state。
 
 ## Contract inventory

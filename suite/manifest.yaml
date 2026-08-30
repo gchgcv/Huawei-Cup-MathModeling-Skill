@@ -1,0 +1,65 @@
+suite:
+  id: huawei-cup-modeling-skills
+  name: Huawei Cup Modeling Skills Suite
+  version: 1.0.0-rc1
+  release_stage: RC_HARDENING
+  install_model: suite_required
+
+components:
+  writing:
+    id: huawei-cup-writing
+    path: skills/huawei-cup-writing
+    manifest: skills/huawei-cup-writing/manifest.yaml
+    version: 1.0.0-rc1
+    enabled_by_default: true
+    can_disable: true
+  review:
+    id: huawei-cup-review
+    path: skills/huawei-cup-review
+    manifest: skills/huawei-cup-review/manifest.yaml
+    version: 1.0.0-rc1
+    enabled_by_default: true
+    can_disable: true
+  compatibility_router:
+    id: huawei-cup-modeling
+    path: compat/huawei-cup-modeling
+    manifest: compat/huawei-cup-modeling/manifest.yaml
+    version: 1.0.0-rc1
+    enabled_by_default: false
+    can_disable: true
+
+shared:
+  manifest: shared/manifest.yaml
+  bundle_version: 1.0.0-rc1
+  paper_quality_standard_version: "1.0"
+  project_facts_contract_version: "1"
+  review_finding_contract_version: "1"
+  paper_artifact_contract_version: "1"
+
+deployment_contract:
+  authoritative_shared_root: shared
+  component_single_directory_install: forbidden
+  component_enable_disable: independent
+  missing_shared: BLOCKED
+  incompatible_shared: BLOCKED
+  copied_rule_fallback: false
+  legacy_runtime_fallback: false
+
+distribution:
+  include:
+    - skills
+    - shared
+    - compat
+    - suite/manifest.yaml
+    - suite/INSTALL.md
+  exclude:
+    - .git
+    - .pytest_cache
+    - .ruff_cache
+    - __pycache__
+    - "*.pyc"
+    - benchmark
+    - legacy
+    - reports
+    - tests
+    - dist

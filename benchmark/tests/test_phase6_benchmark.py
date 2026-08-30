@@ -116,6 +116,7 @@ def test_manifest_paths_and_required_metric_sets_are_complete() -> None:
         for path in manifest[group].values():
             assert (BENCHMARK_ROOT / path).is_file()
     assert "invented_result_count" in manifest["required_metrics"]["writing"]
+    assert "numeric_binding_protection_rate" in manifest["required_metrics"]["writing"]
     assert "seeded_fault_recall" in manifest["required_metrics"]["review"]
     assert "review_immutability_rate" in manifest["required_metrics"]["integration"]
 

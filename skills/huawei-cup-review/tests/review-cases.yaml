@@ -5,6 +5,8 @@ cases:
   - {id: defensive_hedge_stacking, class: defensive, expected: finding, rules: [ADW-004]}
   - {id: defensive_repeated_caveat, class: defensive, expected: finding, rules: [ADW-001, ADW-005]}
   - {id: defensive_negative_scope, class: defensive, expected: finding, rules: [ADW-003]}
+  - {id: defensive_paragraph_final_not_passed, class: defensive, expected: finding, rules: [ADW-003, CLAIM-006]}
+  - {id: defensive_paragraph_final_not_included, class: defensive, expected: finding, rules: [ADW-003]}
   - {id: ai_worklog_narrative, class: ai_style, expected: finding, rules: [AI-001]}
   - {id: ai_repetitive_transition, class: ai_style, expected: finding, rules: [AI-002]}
   - {id: ai_dense_de_chain, class: ai_style, expected: finding, rules: [AI-003]}

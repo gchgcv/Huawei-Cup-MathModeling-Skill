@@ -1,0 +1,37 @@
+name: huawei-cup-modeling
+version: 1.0.0-rc1
+role: compatibility_router
+entrypoint: SKILL.md
+
+routes:
+  paper:
+    target: huawei-cup-writing
+    access: authorized_write_only
+  audit:
+    target: huawei-cup-review
+    access: read_only
+
+unsupported:
+  status: BLOCKED_UNSUPPORTED_ROUTE
+  capabilities:
+    - analysis_modeling
+    - coding_visualization
+    - solver_feedback
+    - ledger_mutation
+    - submission_state_mutation
+
+dependencies:
+  install_model: suite_required
+  suite: huawei-cup-modeling-skills
+  suite_version: 1.0.0-rc1
+  shared_manifest: ../../shared/manifest.yaml
+  shared_bundle_version: 1.0.0-rc1
+  missing_target: BLOCKED
+  missing_shared: BLOCKED
+  legacy_runtime_fallback: false
+
+policy:
+  writes_artifacts: false
+  persists_findings: false
+  owns_submission_state: false
+  allow_implicit_invocation: false

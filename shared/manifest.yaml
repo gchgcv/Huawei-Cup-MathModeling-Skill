@@ -1,0 +1,27 @@
+shared:
+  bundle_version: 1.0.0-rc1
+  authoritative_root: shared
+  workflow_owner: false
+  submission_state_owner: false
+
+paper_quality_standard:
+  version: "1.0"
+  path: paper-quality-standard
+  registry: paper-quality-standard/README.md
+
+contracts:
+  project_facts:
+    version: "1"
+    path: contracts/project-facts.schema.json
+  review_finding:
+    version: "1"
+    path: contracts/review-finding.schema.json
+  paper_artifact:
+    version: "1"
+    path: contracts/paper-artifact-contract.md
+
+dependency_policy:
+  access: read_only
+  missing: BLOCKED
+  incompatible_version: BLOCKED
+  copied_fallback: false

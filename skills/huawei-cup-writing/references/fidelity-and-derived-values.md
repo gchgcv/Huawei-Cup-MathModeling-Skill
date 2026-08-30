@@ -14,6 +14,10 @@ Normative rules: `CLAIM-001`, `CLAIM-002`, `NUM-002`, `NUM-003`, `TERM-002`.
 
 这些 token 必须原样搬运，不能凭记忆重新输入，不能缩短 key，也不能把 `\ref{fig:result}` 改写成 `\ref{fig}`。只重写 token 之间的自然语言。
 
+Token fidelity 比较完整的 `command + optional args + required args`。例如
+`\eqref{eq:a}` 与 `\ref{eq:a}`、`\citep[见]{foo}` 与 `\cite{foo}` 均不等价；
+仅 citation key 或 reference target 相同不能通过。
+
 推荐先把受保护 token 映射为不可编辑占位符，例如：
 
 ```text
@@ -37,6 +41,23 @@ $x+y=1$ → ⟦FORMULA_001⟧
 5. 派生量被列入本轮 `declared_derived_values`，并通过单独核算。
 
 未满足时，保留原始数字并使用非数值表达。禁止把“可复算”自动解释为“已授权新增”。
+
+## Numeric Binding
+
+数字 multiset 一致不能证明事实一致。Validator 会对显式局部绑定建立
+`anchor → value` 映射，例如 `A=1`、`RMSE为0.1347`，并阻止同一 anchor 的数值
+被交换。绑定出现顺序可以变化，`A=1，B=2` 改成 `B=2，A=1` 可以通过。
+
+第一版绑定器只处理显式赋值或命名指标，不承担完整 NLP。若自然语言改写使显式
+anchor 消失，validator 会继续依赖数字、完整 token 和 Project Facts；不得据此把
+`PASS` 扩大解释为全文语义等价。
+
+## Project Facts Priority
+
+提供已通过 Shared validator 的 Project Facts 时，把文件传给
+`--project-facts`。Validator 会读取 parameter 的 `id/symbol/meaning` 和 result
+`id` 对应的 canonical value；输出中的显式绑定若与 canonical value 冲突，必须
+FAIL。Project Facts 只读，validator 不创建、补写或回写该文件。
 
 ## Evidence-Limited Deepening
 
@@ -64,7 +85,8 @@ $x+y=1$ → ⟦FORMULA_001⟧
 ```powershell
 python scripts/validate_manuscript_mutation.py `
   --before-text '图\ref{fig:result}显示结果为 8.4。' `
-  --after-text '结果为 8.4，见图\ref{fig:result}。'
+  --after-text '结果为 8.4，见图\ref{fig:result}。' `
+  --project-facts project-facts.json
 ```
 
 - `status=PASS`：才允许返回改写正文；
@@ -79,7 +101,9 @@ python scripts/validate_manuscript_mutation.py `
   "fidelity_validation": {
     "status": "PASS",
     "changes": {},
-    "number_delta": {"added": [], "removed": []}
+    "number_delta": {"added": [], "removed": []},
+    "numeric_binding": {"conflicts": []},
+    "project_facts_validation": {"status": "PASS", "conflicts": []}
   }
 }
 ```

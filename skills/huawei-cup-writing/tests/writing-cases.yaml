@@ -8,6 +8,12 @@ cases:
     rules: [PROSE-001, PROSE-003, PROSE-004]
     required_outcomes: [clear_main_clause, evidence_kept]
 
+  - id: normal_chinese_information_density
+    class: normal
+    task: split_english_style_compressed_sentence
+    rules: [PROSE-003, PROSE-004]
+    required_outcomes: [one_primary_judgment_per_sentence, logical_sentence_sequence]
+
   - id: normal_abstract_rewrite
     class: normal
     task: rewrite_abstract
@@ -31,6 +37,13 @@ cases:
     task: transform_defensive_scope
     rules: [ADW-001, ADW-003, ADW-006]
     required_outcomes: [positive_scope, claim_first]
+
+  - id: normal_paragraph_final_negative_scope
+    class: normal
+    task: transform_repeated_negative_endings
+    rules: [ADW-002, ADW-003, CLAIM-006]
+    protected_content: [负面结果, 验证层级, 条件依赖性]
+    required_outcomes: [positive_evidence_boundary, negative_result_kept]
 
   - id: resistance_technical_terms
     class: resistance

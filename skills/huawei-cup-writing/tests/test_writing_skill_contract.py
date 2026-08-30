@@ -54,7 +54,9 @@ def test_manifest_paths_and_shared_registry_are_real() -> None:
         value for key, value in manifest["shared_contracts"].items() if key != "access"
     )
     paths.extend(item["path"] for item in manifest["references"]["on_demand"])
-    paths.extend(manifest["validation"].values())
+    paths.extend(
+        value for value in manifest["validation"].values() if isinstance(value, str)
+    )
     for value in paths:
         assert (SKILL_ROOT / value).resolve().exists(), value
 
@@ -153,6 +155,95 @@ def test_mutation_protector_accepts_prose_only_rewrite(tmp_path: Path) -> None:
     result = _run_validator(tmp_path, before, after)
     assert result.returncode == 0
     assert json.loads(result.stdout)["status"] == "PASS"
+
+
+def test_eqref_to_ref_must_fail(tmp_path: Path) -> None:
+    result = _run_validator(
+        tmp_path,
+        r"结果见\eqref{eq:a}。",
+        r"结果见\ref{eq:a}。",
+    )
+    assert result.returncode == 1
+    assert "references" in json.loads(result.stdout)["changes"]
+
+
+def test_citep_to_cite_must_fail_when_token_fidelity_required(
+    tmp_path: Path,
+) -> None:
+    result = _run_validator(
+        tmp_path,
+        r"依据\citep[见]{foo}。",
+        r"依据\cite{foo}。",
+    )
+    assert result.returncode == 1
+    assert "citations" in json.loads(result.stdout)["changes"]
+
+
+def test_numeric_binding_swap_must_fail(tmp_path: Path) -> None:
+    result = _run_validator(tmp_path, "A = 1，B = 2。", "A = 2，B = 1。")
+    report = json.loads(result.stdout)
+    assert result.returncode == 1
+    assert "numeric_bindings" in report["changes"]
+    assert {item["anchor"] for item in report["numeric_binding"]["conflicts"]} == {
+        "a",
+        "b",
+    }
+
+
+def test_numeric_reordering_without_semantic_change_can_pass(tmp_path: Path) -> None:
+    result = _run_validator(tmp_path, "A = 1，B = 2。", "B = 2，A = 1。")
+    assert result.returncode == 0
+    assert json.loads(result.stdout)["status"] == "PASS"
+
+
+def test_same_fact_rephrasing_can_pass(tmp_path: Path) -> None:
+    result = _run_validator(tmp_path, "A = 1，B = 2。", "B等于2，而A取值为1。")
+    assert result.returncode == 0
+    assert json.loads(result.stdout)["numeric_binding"]["conflicts"] == []
+
+
+def test_formula_whitespace_format_change_can_pass(tmp_path: Path) -> None:
+    result = _run_validator(tmp_path, "约束为 $x+y=1$。", "约束写为 $ x + y = 1 $。")
+    assert result.returncode == 0
+    assert json.loads(result.stdout)["status"] == "PASS"
+
+
+def test_project_facts_canonical_value_has_priority(tmp_path: Path) -> None:
+    before_path = tmp_path / "before.tex"
+    after_path = tmp_path / "after.tex"
+    facts_path = tmp_path / "project-facts.json"
+    before_path.write_text("R1 = 12.5，R2 = 13.5。", encoding="utf-8")
+    after_path.write_text("R1 = 13.5，R2 = 12.5。", encoding="utf-8")
+    facts_path.write_text(
+        json.dumps(
+            {
+                "model": {"parameters": []},
+                "results": [
+                    {"id": "R1", "value": 12.5},
+                    {"id": "R2", "value": 13.5},
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(VALIDATOR),
+            str(before_path),
+            str(after_path),
+            "--project-facts",
+            str(facts_path),
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    report = json.loads(result.stdout)
+    assert result.returncode == 1
+    assert report["project_facts_validation"]["status"] == "FAIL"
+    assert "project_facts" in report["changes"]
 
 
 @pytest.mark.parametrize(

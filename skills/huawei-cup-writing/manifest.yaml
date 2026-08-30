@@ -1,7 +1,18 @@
 name: huawei-cup-writing
-version: 1.0.0-phase6-repair1
+version: 1.0.0-rc1
 role: evidence_preserving_paper_construction
 description: Construct or revise Chinese mathematical-modeling papers from frozen, traceable evidence without changing model facts, computed results, formulas, citations, or submission state.
+
+suite_compatibility:
+  suite: huawei-cup-modeling-skills
+  suite_version: 1.0.0-rc1
+  shared_manifest: ../../shared/manifest.yaml
+  shared_bundle_version: 1.0.0-rc1
+  paper_quality_standard_version: "1.0"
+  project_facts_contract_version: "1"
+  paper_artifact_contract_version: "1"
+  missing_or_incompatible: BLOCKED
+  copied_rule_fallback: false
 
 shared_standard:
   root: ../../shared/paper-quality-standard
@@ -98,6 +109,10 @@ references:
 
 validation:
   mutation_protector: scripts/validate_manuscript_mutation.py
+  mutation_layers:
+    - full_latex_token
+    - explicit_numeric_binding
+    - project_facts_canonical_value
   template: templates/latex/working-draft/main.tex
 
 outputs:

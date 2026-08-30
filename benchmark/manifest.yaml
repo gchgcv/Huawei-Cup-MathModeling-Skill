@@ -26,6 +26,7 @@ required_metrics:
   writing:
     - fact_preservation_rate
     - key_number_preservation_rate
+    - numeric_binding_protection_rate
     - formula_preservation_rate
     - citation_protection_rate
     - label_ref_protection_rate

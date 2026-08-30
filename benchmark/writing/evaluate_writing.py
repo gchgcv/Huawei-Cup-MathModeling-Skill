@@ -167,6 +167,9 @@ def evaluate_case(
         "deterministic_fidelity_pass": not effective_changes and not missing_protected,
         "protected_elements_unchanged": not effective_changes,
         "numbers_preserved": "numbers" not in effective_changes,
+        "numeric_bindings_preserved": not (
+            {"numeric_bindings", "project_facts"} & effective_changes
+        ),
         "formulas_preserved": "formulas" not in effective_changes,
         "citations_preserved": "citations" not in effective_changes,
         "labels_and_references_preserved": not (
@@ -261,6 +264,9 @@ def evaluate_system(catalog_path: Path, results_dir: Path | None) -> dict[str, A
         ),
         "fact_preservation_rate": rate(results, "protected_elements_unchanged"),
         "key_number_preservation_rate": rate(results, "numbers_preserved"),
+        "numeric_binding_protection_rate": rate(
+            results, "numeric_bindings_preserved"
+        ),
         "formula_preservation_rate": rate(results, "formulas_preserved"),
         "citation_protection_rate": rate(results, "citations_preserved"),
         "label_ref_protection_rate": rate(results, "labels_and_references_preserved"),
@@ -311,6 +317,7 @@ def evaluate_ab(
     modular_metrics = modular["metrics"]
     protected_rates = (
         "fact_preservation_rate",
+        "numeric_binding_protection_rate",
         "technical_term_preservation_rate",
         "necessary_limitation_preservation_rate",
         "negative_evidence_preservation_rate",

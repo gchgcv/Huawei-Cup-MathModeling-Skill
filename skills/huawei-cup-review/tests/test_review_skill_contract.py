@@ -12,7 +12,6 @@ import pytest
 import yaml
 from jsonschema import Draft202012Validator
 
-
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SHARED_ROOT = REPO_ROOT / "shared" / "paper-quality-standard"
@@ -239,6 +238,38 @@ def test_figure_auditor_is_read_only_and_detects_missing_reference(tmp_path: Pat
     assert result.returncode == 1
     assert "not referenced" in result.stdout
     assert before == after
+
+
+def test_figure_auditor_treats_subfigures_as_children_of_outer_figure(tmp_path: Path) -> None:
+    (tmp_path / "left.pdf").write_bytes(b"%PDF-placeholder")
+    (tmp_path / "right.pdf").write_bytes(b"%PDF-placeholder")
+    tex = tmp_path / "main.tex"
+    tex.write_text(
+        """\\begin{figure}
+\\begin{subfigure}{0.48\\textwidth}
+\\includegraphics{left.pdf}\\caption{Left}\\label{fig:left}
+\\end{subfigure}
+\\begin{subfigure}{0.48\\textwidth}
+\\includegraphics{right.pdf}\\caption{Right}\\label{fig:right}
+\\end{subfigure}
+\\caption{Comparison}\\label{fig:comparison}
+\\end{figure}
+See Figure~\\ref{fig:comparison}.
+""",
+        encoding="utf-8",
+    )
+
+    result = subprocess.run(
+        [sys.executable, str(FIGURE_AUDITOR), str(tex), "--strict"],
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "FIGURES_SCANNED: 1" in result.stdout
+    assert "FIGURE_REFERENCE_AUDIT: 0 warning(s)" in result.stdout
 
 
 def test_review_case_catalog_covers_phase4_fault_and_resistance_classes() -> None:

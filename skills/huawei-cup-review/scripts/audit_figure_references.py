@@ -7,8 +7,8 @@ import re
 import sys
 from pathlib import Path
 
-
 FIGURE_RE = re.compile(r"\\begin\{figure\*?\}(.*?)\\end\{figure\*?\}", re.DOTALL)
+SUBFIGURE_RE = re.compile(r"\\begin\{subfigure\}(.*?)\\end\{subfigure\}", re.DOTALL)
 GRAPHIC_RE = re.compile(r"\\includegraphics(?:\[[^\]]*\])?\{([^}]+)\}")
 CAPTION_RE = re.compile(r"\\caption\{([^}]*)\}", re.DOTALL)
 LABEL_RE = re.compile(r"\\label\{([^}]+)\}")
@@ -77,6 +77,7 @@ def main() -> int:
     sources, missing_sources = resolve_tex_sources(args.tex)
     warnings = [f"included TeX source not found: {path}" for path in missing_sources]
     labels: list[str] = []
+    reference_required_labels: list[str] = []
     references: set[str] = set()
     figure_count = 0
 
@@ -86,8 +87,10 @@ def main() -> int:
         for figure in FIGURE_RE.findall(text):
             figure_count += 1
             graphics = GRAPHIC_RE.findall(figure)
-            captions = CAPTION_RE.findall(figure)
-            figure_labels = LABEL_RE.findall(figure)
+            all_figure_labels = LABEL_RE.findall(figure)
+            outer_figure = SUBFIGURE_RE.sub("", figure)
+            captions = CAPTION_RE.findall(outer_figure)
+            figure_labels = LABEL_RE.findall(outer_figure)
             if not graphics:
                 warnings.append(f"{source}: figure {figure_count} has no includegraphics")
             for target in graphics:
@@ -97,12 +100,13 @@ def main() -> int:
                 warnings.append(f"{source}: figure {figure_count} must have one non-empty caption")
             if len(figure_labels) != 1:
                 warnings.append(f"{source}: figure {figure_count} must have one label")
-            labels.extend(figure_labels)
+            labels.extend(all_figure_labels)
+            reference_required_labels.extend(figure_labels)
 
     duplicate_labels = sorted({label for label in labels if labels.count(label) > 1})
     for label in duplicate_labels:
         warnings.append(f"duplicate figure label: {label}")
-    for label in sorted(set(labels) - references):
+    for label in sorted(set(reference_required_labels) - references):
         warnings.append(f"figure label is not referenced in scanned text: {label}")
 
     print(f"SOURCE_FILES_SCANNED: {len(sources)}")

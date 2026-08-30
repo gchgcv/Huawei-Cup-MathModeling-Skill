@@ -33,7 +33,7 @@ description: This skill should be used when the user asks to “写数学建模�
 1. 确认用户要求的章节、载体和交付方式；默认 `content-only`。
 2. 读取 `../../shared/paper-quality-standard/README.md`，再按任务加载相关 Rule 文件。
 3. 若提供 Project Facts，先按 `references/project-facts-consumption.md` 只读校验并提取受保护事实；否则从用户材料建立本轮受保护事实集：数字、公式、模型含义、结果、citation key、label/ref、单位和适用边界。
-4. 改写现有文本时必须加载 `references/fidelity-and-derived-values.md`：先锁定完整 LaTeX token 和原始数字，再只改写 token 之间的自然语言。默认禁止新增派生数字；“可以算出”不等于“获准写入”。
+4. 改写现有文本时必须加载 `references/fidelity-and-derived-values.md`：先锁定完整 LaTeX token、显式数字绑定和原始数字，再只改写 token 之间的自然语言。提供 Project Facts 时必须传给 mutation protector 做 canonical value 校验。默认禁止新增派生数字；“可以算出”不等于“获准写入”。
 5. 选择满足请求的最小写作模式：`content-only`、`section-draft`、`micro-revision`、`revision` 或 `full-paper`。
 6. 加载最少的 Writing reference，按 Shared Rule ID 建设文本；不得复制 Shared 规范正文形成第二定义。
 7. 改写后分两层检查：deterministic fidelity 检查 token、数字、公式和 citation；semantic preservation 检查主张范围、必要局限、负面证据和术语含义。只要存在改写前文本，必须运行 `scripts/validate_manuscript_mutation.py`；validator 未 PASS 时不得返回改写正文，必须修复并重跑。无法运行时保留原文并报告 `NOT_RUN`。

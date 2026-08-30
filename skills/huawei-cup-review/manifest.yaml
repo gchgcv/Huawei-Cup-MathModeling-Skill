@@ -1,7 +1,19 @@
 skill:
   id: huawei-cup-review
-  version: 1.0.0-phase5
+  version: 1.0.0-rc1
   entrypoint: SKILL.md
+
+suite_compatibility:
+  suite: huawei-cup-modeling-skills
+  suite_version: 1.0.0-rc1
+  shared_manifest: ../../shared/manifest.yaml
+  shared_bundle_version: 1.0.0-rc1
+  paper_quality_standard_version: "1.0"
+  project_facts_contract_version: "1"
+  review_finding_contract_version: "1"
+  paper_artifact_contract_version: "1"
+  missing_or_incompatible: BLOCKED
+  copied_rule_fallback: false
 
 contract:
   mode: read_only

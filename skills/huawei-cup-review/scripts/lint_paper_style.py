@@ -48,6 +48,11 @@ DEFENSIVE_SCOPE_RE = re.compile(
     r"(?:证明|说明|代表|涵盖|覆盖|适用|推广|声称|意味着|解决|刻画)?"
 )
 
+NEGATIVE_SCOPE_END_RE = re.compile(
+    r"(?:未通过|未包含|未覆盖|未检验|未验证|未纳入|未形成|未达到|未满足|无法推广)"
+    r"[^，；。！？!?]{0,24}$"
+)
+
 CAVEAT_FIRST = (
     "尽管", "虽然", "诚然", "不可否认", "需要说明的是", "必须说明的是",
     "应当说明的是", "需要指出的是", "值得说明的是",
@@ -86,7 +91,9 @@ def extract_docx(path: Path) -> str:
     with zipfile.ZipFile(path) as zf:
         chunks: list[str] = []
         for name in zf.namelist():
-            if not (name == "word/document.xml" or name.startswith("word/header") or name.startswith("word/footer")):
+            if name != "word/document.xml" and not name.startswith(
+                ("word/header", "word/footer")
+            ):
                 continue
             try:
                 root = ET.fromstring(zf.read(name))
@@ -107,14 +114,19 @@ def read_text(path: Path) -> str:
 
 def strip_nonprose(text: str, suffix: str) -> str:
     # Markdown fenced code.
-    text = re.sub(r"```.*?```", "", text, flags=re.S)
+    text = re.sub(r"```.*?```", "", text, flags=re.DOTALL)
     # LaTeX display/inline math and comments. Keep surrounding prose.
     if suffix.lower() == ".tex":
         text = re.sub(r"(?m)%.*$", "", text)
-        text = re.sub(r"\\\[.*?\\\]", "", text, flags=re.S)
-        text = re.sub(r"\$\$.*?\$\$", "", text, flags=re.S)
+        text = re.sub(r"\\\[.*?\\\]", "", text, flags=re.DOTALL)
+        text = re.sub(r"\$\$.*?\$\$", "", text, flags=re.DOTALL)
         text = re.sub(r"\$[^$]*\$", "", text)
-        text = re.sub(r"\\begin\{(?:equation\*?|align\*?|gather\*?|cases)\}.*?\\end\{[^}]+\}", "", text, flags=re.S)
+        text = re.sub(
+            r"\\begin\{(?:equation\*?|align\*?|gather\*?|cases)\}.*?\\end\{[^}]+\}",
+            "",
+            text,
+            flags=re.DOTALL,
+        )
         text = re.sub(r"\\(?:cite|ref|eqref|label)\{[^}]*\}", "", text)
     # Markdown headings/tables are not continuous body prose.
     kept = []
@@ -235,7 +247,13 @@ def main() -> int:
                 f"L{line}: caveat-first paragraph; consider leading with the claim/result and moving necessary limitation later"
             )
 
-        for sentence in split_sentences(para):
+        sentences = split_sentences(para)
+        if sentences and NEGATIVE_SCOPE_END_RE.search(sentences[-1]):
+            warnings.append(
+                f"L{line}: paragraph-final negative scope; preserve the limitation but restate what evidence supports, where it applies, or which condition drives it"
+            )
+
+        for sentence in sentences:
             hedges = [term for term in HEDGE_TERMS if term in sentence]
             if len(hedges) >= 2:
                 warnings.append(
