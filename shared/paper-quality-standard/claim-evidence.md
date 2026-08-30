@@ -1,0 +1,43 @@
+# Claim–Evidence Standard
+
+## CLAIM-001 — 主张范围不得超过证据
+
+- **Normative Statement:** 结论的对象、时间、区域、参数区间、因果强度和普适程度不得超过实际数据、实验、模型假设和验证能够支持的范围。
+- **Scope:** 所有事实性与评价性主张。
+- **Required Exceptions:** 明确标注且不伪装成结果的假设性讨论可以超出现有证据范围。
+- **Relations:** `ADW-003`, `ADW-004`, `ABS-003`。
+
+## CLAIM-002 — 关键主张必须可追溯
+
+- **Normative Statement:** 关键数字、模型效果、比较结论和评价性判断必须能定位到数据、公式、程序输出、图表、检验或可靠来源。
+- **Scope:** 摘要、正文、图表和结论。
+- **Required Exceptions:** 由前文已明确证明的直接逻辑推论可以引用其证明位置。
+- **Relations:** `PROSE-002`, `DEPTH-002`, `NUM-003`。
+
+## CLAIM-003 — 相关不得写成因果
+
+- **Normative Statement:** 相关关系、拟合关系或共变现象只有在设计与证据支持因果解释时才能表述为因果关系。
+- **Scope:** 数据分析、模型解释和结论。
+- **Required Exceptions:** 模型中明确假定的因果机制必须标明其假设身份和适用边界。
+- **Relations:** `CLAIM-001`, `ADW-004`。
+
+## CLAIM-004 — 模拟与观测身份不得混淆
+
+- **Normative Statement:** 模拟输出、预测结果、求解器可行解和真实观测必须保持身份区分，不能把一种证据写成另一种。
+- **Scope:** 结果、图表、摘要和结论。
+- **Required Exceptions:** 经独立验证并完成明确映射时，可以讨论模拟与观测的一致程度，但仍须保留来源身份。
+- **Relations:** `CLAIM-002`, `FIG-004`。
+
+## CLAIM-005 — 稳健性与显著性需要对应检验
+
+- **Normative Statement:** 单次运行、单一划分或一次参数扰动不足以支撑广义“稳健、稳定、显著”主张；相关表述必须对应适配的重复实验、敏感性、统计检验或理论依据。
+- **Scope:** 结果讨论、摘要和结论。
+- **Required Exceptions:** “稳健优化”等正式模型名称按 `TERM-001` 处理，不自动构成效果主张。
+- **Relations:** `PROSE-002`, `DEPTH-003`, `TERM-001`。
+
+## CLAIM-006 — 核心负面证据不得隐藏
+
+- **Normative Statement:** 会改变读者对核心结论、适用范围或决策价值判断的负面结果、失败条件和权衡必须保留。
+- **Scope:** 结果讨论和结论。
+- **Required Exceptions:** 与当前有效方案链和正式主张无关的废弃探索过程不必进入论文。
+- **Relations:** `ADW-002`, `DEPTH-005`。

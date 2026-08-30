@@ -1,0 +1,36 @@
+# Academic Prose Standard
+
+## PROSE-001 — 直接表达
+
+- **Normative Statement:** 正文应直接陈述当前任务、模型关系、计算结果或结论，不以空泛铺垫、自我评价或无信息增量的元话语替代实质内容。
+- **Scope:** 摘要、正文、图表说明和结论。
+- **Required Exceptions:** 为定义术语、交代必要背景或说明真实证据边界所需的简短引导可以保留。
+- **Relations:** `AI-002`, `ADW-001`, `CLAIM-001`。
+
+## PROSE-002 — 证据优先于评价词
+
+- **Normative Statement:** “有效、先进、合理、稳健、显著、优越”等评价必须由可定位的数值、公式、比较、检验或逻辑证据支持；证据不足时不得用评价词补足结论。
+- **Scope:** 方法评价、结果讨论、摘要和结论。
+- **Required Exceptions:** 术语本身具有正式技术含义时按 `TERM-001` 处理，不因其表面上具有评价色彩而删除。
+- **Relations:** `CLAIM-002`, `DEPTH-002`, `TERM-001`。
+
+## PROSE-003 — 句子主干清晰
+
+- **Normative Statement:** 中文句子应能识别明确的陈述对象、动作或关系和结果；多重定语、抽象名词链或并列关系不得遮蔽主干。
+- **Scope:** 连续正文、图注和表注。
+- **Required Exceptions:** 数学定义、公式条件和标准术语允许保持必要的复杂结构。
+- **Relations:** `AI-003`, `TERM-001`。
+
+## PROSE-004 — 连接来自逻辑关系
+
+- **Normative Statement:** 句段之间应依靠因果、条件、递进、对比或事实顺序形成连接，不依赖密集且重复的模板连接词制造表面连贯。
+- **Scope:** 连续段落与章节衔接。
+- **Required Exceptions:** 复杂推导中为消除歧义所需的明确路标可以保留。
+- **Relations:** `AI-002`, `STRUCT-001`。
+
+## PROSE-005 — 标点服务于语义
+
+- **Normative Statement:** 引号、括号、冒号、破折号和分号应承担明确的引用、补充、列举、解释或分隔功能，不得作为包装普通表述的固定模板。
+- **Scope:** 中文正文。
+- **Required Exceptions:** 公式、变量说明、正式名称和模板规定的格式不受修辞性限制。
+- **Relations:** `TERM-001`, `FMT-001`。
