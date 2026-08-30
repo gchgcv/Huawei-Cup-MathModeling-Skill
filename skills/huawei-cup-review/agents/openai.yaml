@@ -1,0 +1,7 @@
+interface:
+  display_name: "华为杯数学建模论文只读审核"
+  short_description: "基于共享标准输出有证据的论文审核 findings"
+  default_prompt: "使用 $huawei-cup-review 只读审核当前数学建模论文。每个正式 finding 都要引用 Shared Rule ID 和可定位 evidence；允许 findings 为空。不要修改或保存任何 artifact，不要产生投稿通过状态。"
+
+policy:
+  allow_implicit_invocation: true

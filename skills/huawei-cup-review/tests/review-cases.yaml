@@ -1,0 +1,29 @@
+schema_version: 1
+status: SPECIFICATION_ONLY_PENDING_PHASE6_EXECUTION
+cases:
+  - {id: defensive_disclaimer_first, class: defensive, expected: finding, rules: [ADW-001, ADW-006]}
+  - {id: defensive_hedge_stacking, class: defensive, expected: finding, rules: [ADW-004]}
+  - {id: defensive_repeated_caveat, class: defensive, expected: finding, rules: [ADW-001, ADW-005]}
+  - {id: defensive_negative_scope, class: defensive, expected: finding, rules: [ADW-003]}
+  - {id: ai_worklog_narrative, class: ai_style, expected: finding, rules: [AI-001]}
+  - {id: ai_repetitive_transition, class: ai_style, expected: finding, rules: [AI-002]}
+  - {id: ai_dense_de_chain, class: ai_style, expected: finding, rules: [AI-003]}
+  - {id: ai_abstract_buzzwords, class: ai_style, expected: finding, rules: [AI-005, ABS-004]}
+  - {id: depth_figure_restatement_only, class: depth, expected: finding, rules: [DEPTH-002, FIG-005]}
+  - {id: depth_no_numeric_evidence, class: depth, expected: finding, rules: [DEPTH-002]}
+  - {id: depth_no_explanation, class: depth, expected: finding, rules: [DEPTH-002]}
+  - {id: depth_no_task_meaning, class: depth, expected: finding, rules: [DEPTH-002]}
+  - {id: claim_correlation_as_causation, class: claim_evidence, expected: finding, rules: [CLAIM-003]}
+  - {id: claim_simulation_as_observation, class: claim_evidence, expected: finding, rules: [CLAIM-004]}
+  - {id: claim_single_split_as_robust, class: claim_evidence, expected: finding, rules: [CLAIM-005]}
+  - {id: claim_beyond_sample_scope, class: claim_evidence, expected: finding, rules: [CLAIM-001]}
+  - {id: document_abstract_body_number_mismatch, class: document, expected: finding, rules: [ABS-002, NUM-003]}
+  - {id: document_duplicate_figure_label, class: document, expected: finding, rules: [FIG-003]}
+  - {id: document_unreferenced_figure, class: document, expected: finding, rules: [FIG-003]}
+  - {id: document_caption_data_mismatch, class: document, expected: finding, rules: [FIG-004]}
+  - {id: document_latex_warning, class: document, expected: finding, rules: [FMT-004]}
+  - {id: document_stale_pdf_review, class: document, expected: finding, rules: [FMT-003]}
+  - {id: resistance_clean_empty, class: resistance, expected: empty_findings, rules: []}
+  - {id: resistance_valid_technical_term, class: resistance, expected: empty_findings, rules: [TERM-001]}
+  - {id: resistance_necessary_limitation, class: resistance, expected: empty_findings, rules: [ADW-002]}
+  - {id: resistance_real_uncertainty, class: resistance, expected: empty_findings, rules: [ADW-004]}

@@ -1,0 +1,52 @@
+skill:
+  id: huawei-cup-review
+  version: 1.0.0-phase4
+  entrypoint: SKILL.md
+
+contract:
+  mode: read_only
+  read_only: true
+  writes_performed: []
+  persists_report: false
+  automatic_repair: false
+  owns_submission_state: false
+  status_meaning: CALL_SUCCESS_ONLY_NOT_PAPER_QUALITY
+
+shared_standard:
+  registry: ../../shared/paper-quality-standard/README.md
+  files:
+    - ../../shared/paper-quality-standard/academic-prose.md
+    - ../../shared/paper-quality-standard/anti-ai-style.md
+    - ../../shared/paper-quality-standard/anti-defensive-writing.md
+    - ../../shared/paper-quality-standard/argument-depth.md
+    - ../../shared/paper-quality-standard/claim-evidence.md
+    - ../../shared/paper-quality-standard/abstract-standard.md
+    - ../../shared/paper-quality-standard/section-structure.md
+    - ../../shared/paper-quality-standard/figure-table-standard.md
+    - ../../shared/paper-quality-standard/academic-format.md
+    - ../../shared/paper-quality-standard/number-unit-precision.md
+    - ../../shared/paper-quality-standard/terminology.md
+    - ../../shared/paper-quality-standard/reference-standard.md
+
+schemas:
+  request: schemas/review-request.schema.json
+  result: schemas/review-result.schema.json
+
+references:
+  on_demand:
+    - path: references/semantic-review-policy.md
+      use_for: semantic review lenses
+    - path: references/severity-and-evidence-policy.md
+      use_for: finding admission and severity
+    - path: references/deterministic-checks.md
+      use_for: script routing
+    - path: references/document-quality-review.md
+      use_for: document and layout review
+
+checks:
+  result_contract: scripts/validate_review_result.py
+  style: scripts/lint_paper_style.py
+  latex_build: scripts/audit_latex_build.py
+  pdf_evidence: scripts/validate_latex_review.py
+  docx_math: scripts/verify_docx_math.py
+  figure_references: scripts/audit_figure_references.py
