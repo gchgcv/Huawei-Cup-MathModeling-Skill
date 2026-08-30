@@ -1,0 +1,25 @@
+schema_version: 1
+name: phase6-writing-review-integration
+status: CATALOG_VALIDATED_ONLY
+execution_status: NOT_RUN_AGENT_OUTPUTS_UNAVAILABLE
+cases:
+  - id: integration_defensive
+    writing_case_id: defensive_scope
+    review_case_id: fault_disclaimer_first
+    expected_review: findings_allowed
+  - id: integration_ai_style
+    writing_case_id: ai_worklog
+    review_case_id: fault_worklog
+    expected_review: findings_allowed
+  - id: integration_clean
+    writing_case_id: high_quality
+    review_case_id: resistance_clean
+    expected_review: empty_findings
+  - id: integration_limitation
+    writing_case_id: necessary_limitation
+    review_case_id: resistance_real_limitation
+    expected_review: empty_findings
+  - id: integration_terminology
+    writing_case_id: technical_terms
+    review_case_id: resistance_technical_terms
+    expected_review: empty_findings

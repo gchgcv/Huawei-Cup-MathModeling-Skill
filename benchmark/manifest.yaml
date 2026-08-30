@@ -1,0 +1,53 @@
+benchmark:
+  id: huawei-cup-writing-review-phase6
+  version: 1
+  read_only: true
+  persists_report: false
+  status_meaning: BENCHMARK_EXECUTION_ONLY_NOT_PAPER_QUALITY
+
+catalogs:
+  writing: writing/cases.yaml
+  review: review/cases.yaml
+  integration: integration/cases.yaml
+
+evaluators:
+  writing: writing/evaluate_writing.py
+  review: review/evaluate_review.py
+  integration: integration/evaluate_integration.py
+  aggregate: run_benchmark.py
+
+required_real_outputs:
+  - legacy_writing_results
+  - modular_writing_results
+  - modular_review_results
+  - modular_integration_results
+
+required_metrics:
+  writing:
+    - fact_preservation_rate
+    - key_number_preservation_rate
+    - formula_preservation_rate
+    - citation_protection_rate
+    - label_ref_protection_rate
+    - defensive_expression_reduction_rate
+    - worklog_narrative_reduction_rate
+    - ai_mechanical_syntax_reduction_rate
+    - argument_depth_requirement_rate
+    - technical_term_preservation_rate
+    - necessary_limitation_preservation_rate
+    - negative_evidence_preservation_rate
+    - invented_result_count
+  review:
+    - seeded_fault_recall
+    - false_positive_count
+    - false_negative_count
+    - unsupported_finding_count
+    - duplicate_finding_count
+    - evidence_coverage
+    - mutation_count
+    - clean_case_empty_findings_rate
+  integration:
+    - review_immutability_rate
+    - review_mutation_count
+    - shared_rule_id_consistency_rate
+    - finding_handoff_coverage

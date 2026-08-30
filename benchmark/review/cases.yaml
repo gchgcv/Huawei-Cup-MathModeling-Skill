@@ -1,0 +1,98 @@
+schema_version: 1
+name: phase6-review-seeded-cases
+status: CATALOG_VALIDATED_ONLY
+execution_status: NOT_RUN_AGENT_OUTPUTS_UNAVAILABLE
+source_access_policy:
+  old_problem_training: false
+  answer_artifact_access: false
+cases:
+  - id: fault_disclaimer_first
+    class: defensive
+    expectation: finding
+    artifact_id: paper
+    artifact_text: '本文不能证明模型适用于任何其他地区。本文结果为 12.5。'
+    accepted_rule_ids: [ADW-001, ADW-003, ADW-006]
+
+  - id: fault_hedge_stacking
+    class: defensive
+    expectation: finding
+    artifact_id: paper
+    artifact_text: '该结果可能或许在一定程度上说明方案有效。'
+    accepted_rule_ids: [ADW-004]
+
+  - id: fault_worklog
+    class: ai_style
+    expectation: finding
+    artifact_id: paper
+    artifact_text: '首先清洗数据，随后建立模型，然后求解，最后绘图。'
+    accepted_rule_ids: [AI-001, AI-002]
+
+  - id: fault_de_chain
+    class: ai_style
+    expectation: finding
+    artifact_id: paper
+    artifact_text: '基于多源数据的复杂约束条件的动态关系的综合评价模型的结果如下。'
+    accepted_rule_ids: [AI-003, PROSE-003]
+
+  - id: fault_shallow_result
+    class: depth
+    expectation: finding
+    artifact_id: paper
+    artifact_text: '图 3 显示曲线上升，结果较好。'
+    accepted_rule_ids: [DEPTH-002, FIG-005, PROSE-002]
+
+  - id: fault_correlation_as_causation
+    class: claim_evidence
+    expectation: finding
+    artifact_id: paper
+    artifact_text: '变量 A 与 B 的相关系数为 0.71，因此 A 导致 B 增长。'
+    accepted_rule_ids: [CLAIM-003]
+
+  - id: fault_simulation_as_observation
+    class: claim_evidence
+    expectation: finding
+    artifact_id: paper
+    artifact_text: '仿真生成 100 组数据，证明真实地区均出现相同现象。'
+    accepted_rule_ids: [CLAIM-001, CLAIM-004]
+
+  - id: fault_single_split_robustness
+    class: claim_evidence
+    expectation: finding
+    artifact_id: paper
+    artifact_text: '模型仅在一次随机划分上测试，结果证明其具有普遍稳健性。'
+    accepted_rule_ids: [CLAIM-001, CLAIM-005]
+
+  - id: fault_abstract_number_mismatch
+    class: document
+    expectation: finding
+    artifact_id: paper
+    artifact_text: '摘要：成本为 12.5 万元。正文：最终成本为 13.5 万元。'
+    accepted_rule_ids: [ABS-002, NUM-003]
+
+  - id: resistance_clean
+    class: resistance
+    expectation: empty_findings
+    artifact_id: paper
+    artifact_text: '在 30 个已观测样本内，误差由 4.8% 降至 3.1%，不外推到未观测地区。'
+    accepted_rule_ids: []
+
+  - id: resistance_technical_terms
+    class: resistance
+    expectation: empty_findings
+    artifact_id: paper
+    artifact_text: '动态耦合机制通过拓扑约束进入稳健优化模型。'
+    accepted_rule_ids: []
+
+  - id: resistance_real_limitation
+    class: resistance
+    expectation: empty_findings
+    artifact_id: paper
+    artifact_text: '由于未控制季节因素，本结果不作因果解释。'
+    accepted_rule_ids: []
+
+  - id: resistance_real_uncertainty
+    class: resistance
+    expectation: empty_findings
+    artifact_id: paper
+    artifact_text: '置信区间跨越零，因此效应方向仍不确定。'
+    accepted_rule_ids: []

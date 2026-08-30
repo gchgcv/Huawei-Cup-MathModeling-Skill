@@ -1,0 +1,61 @@
+schema_version: 1
+name: phase6-writing-ab-cases
+status: CATALOG_VALIDATED_ONLY
+execution_status: NOT_RUN_AGENT_OUTPUTS_UNAVAILABLE
+candidate_format:
+  required: [case_id, system_under_test, output_text]
+  system_under_test: [legacy-v0.9.1, modular-writing]
+cases:
+  - id: defensive_scope
+    class: defensive
+    rules: [ADW-001, ADW-003, ADW-006, CLAIM-001]
+    input_text: '本文不能证明该方案适用于所有地区。样本覆盖 A 市 2024 年数据，成本为 12.5 万元，模型满足 $x+y=1$，依据\cite{source-a}。'
+    undesirable_patterns: ['本文不能证明']
+    required_phrases: ['A 市 2024 年数据']
+    protected_phrases: ['12.5', '$x+y=1$', '\cite{source-a}']
+    protected_kinds: [necessary_scope]
+
+  - id: ai_worklog
+    class: ai_style
+    rules: [AI-001, AI-002, STRUCT-001]
+    input_text: '首先清洗数据，随后建立模型，然后求解参数，最后得到目标值 8.4，见图\ref{fig:result}。'
+    undesirable_patterns: ['首先', '随后', '然后', '最后']
+    required_phrases: ['8.4']
+    protected_phrases: ['8.4', '\ref{fig:result}']
+    protected_kinds: []
+
+  - id: shallow_result
+    class: shallow_depth
+    rules: [DEPTH-002, FIG-005, CLAIM-002]
+    input_text: '图\ref{fig:trend}显示指标从 0.62 上升到 0.79。'
+    undesirable_patterns: []
+    required_phrases: ['0.62', '0.79', '原因', '意味着']
+    protected_phrases: ['0.62', '0.79', '\ref{fig:trend}']
+    protected_kinds: []
+
+  - id: high_quality
+    class: clean
+    rules: [PROSE-002, DEPTH-002, CLAIM-001]
+    input_text: '在已观测的 30 个样本内，误差由 4.8% 降至 3.1%；该变化与约束松弛后的可行域扩大一致，但不外推到未观测地区。'
+    undesirable_patterns: []
+    required_phrases: ['30', '4.8%', '3.1%', '不外推到未观测地区']
+    protected_phrases: ['30', '4.8%', '3.1%', '不外推到未观测地区']
+    protected_kinds: [necessary_limitation]
+
+  - id: technical_terms
+    class: terminology_resistance
+    rules: [TERM-001, TERM-004]
+    input_text: '动态耦合机制通过拓扑约束进入稳健优化模型，参数 $\lambda=0.3$ 控制惩罚强度。'
+    undesirable_patterns: []
+    required_phrases: ['动态耦合机制', '拓扑约束', '稳健优化']
+    protected_phrases: ['动态耦合机制', '拓扑约束', '稳健优化', '$\lambda=0.3$']
+    protected_kinds: [technical_terms]
+
+  - id: necessary_limitation
+    class: limitation_resistance
+    rules: [ADW-002, ADW-004, CLAIM-006, DEPTH-005]
+    input_text: '由于未控制季节因素，本结果不作因果解释；方案在能耗指标上不占优，但在给定成本约束下可行。'
+    undesirable_patterns: []
+    required_phrases: ['未控制季节因素', '不作因果解释', '能耗指标上不占优']
+    protected_phrases: ['未控制季节因素', '不作因果解释', '能耗指标上不占优']
+    protected_kinds: [necessary_limitation, negative_evidence]
