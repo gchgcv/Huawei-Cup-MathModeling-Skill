@@ -83,10 +83,25 @@ def test_manifest_paths_are_real_and_boundary_is_exact() -> None:
     assert contract["owns_submission_state"] is False
     paths = [manifest["skill"]["entrypoint"], manifest["shared_standard"]["registry"]]
     paths.extend(manifest["shared_standard"]["files"])
+    paths.extend(
+        value
+        for key, value in manifest["shared_contracts"].items()
+        if key != "access"
+    )
     paths.extend(manifest["schemas"].values())
     paths.extend(item["path"] for item in manifest["references"]["on_demand"])
     paths.extend(manifest["checks"].values())
     assert all((SKILL_ROOT / path).resolve().exists() for path in paths)
+
+
+def test_project_facts_access_is_read_only() -> None:
+    manifest = yaml.safe_load((SKILL_ROOT / "manifest.yaml").read_text(encoding="utf-8"))
+    assert manifest["shared_contracts"]["access"] == "read_only"
+    reference = (SKILL_ROOT / "references" / "project-facts-review.md").read_text(
+        encoding="utf-8"
+    )
+    assert "只读" in reference
+    assert "不更新 Project Facts" in reference
 
 
 def test_request_schema_forces_read_only_policy() -> None:

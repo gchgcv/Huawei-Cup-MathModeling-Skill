@@ -32,7 +32,7 @@ description: This skill should be used when the user asks to “写数学建模�
 
 1. 确认用户要求的章节、载体和交付方式；默认 `content-only`。
 2. 读取 `../../shared/paper-quality-standard/README.md`，再按任务加载相关 Rule 文件。
-3. 从用户材料建立本轮受保护事实集：数字、公式、模型含义、结果、citation key、label/ref、单位和适用边界。
+3. 若提供 Project Facts，先按 `references/project-facts-consumption.md` 只读校验并提取受保护事实；否则从用户材料建立本轮受保护事实集：数字、公式、模型含义、结果、citation key、label/ref、单位和适用边界。
 4. 选择满足请求的最小写作模式：`content-only`、`section-draft`、`micro-revision`、`revision` 或 `full-paper`。
 5. 加载最少的 Writing reference，按 Shared Rule ID 建设文本；不得复制 Shared 规范正文形成第二定义。
 6. 改写后执行事实层、语义层和表达层检查。对纯文本/LaTeX 改写可运行 `scripts/validate_manuscript_mutation.py` 比较改写前后受保护元素。
@@ -58,6 +58,7 @@ description: This skill should be used when the user asks to “写数学建模�
 
 - `manifest.yaml`：任务路由、Shared Rule 文件和权限清单；
 - `references/`：只定义“如何写”，不重新定义“什么是合格论文”；
+- `../../shared/contracts/`：Project Facts、artifact 和跨模块结构的只读契约；
 - `scripts/validate_manuscript_mutation.py`：只读比较改写前后的受保护元素；
 - `templates/latex/working-draft/`：仅在用户明确要求新建 LaTeX 且没有现有模板时使用的非官方工作稿。
 

@@ -17,7 +17,7 @@
         "required": ["artifact_id", "kind", "path"],
         "properties": {
           "artifact_id": {"type": "string", "minLength": 1},
-          "kind": {"enum": ["paper", "pdf", "figure", "table", "code", "result", "citation", "context"]},
+          "kind": {"enum": ["paper", "pdf", "figure", "table", "code", "result", "citation", "context", "project_facts"]},
           "path": {"type": "string", "minLength": 1},
           "sha256": {"type": "string", "pattern": "^[a-fA-F0-9]{64}$"}
         }

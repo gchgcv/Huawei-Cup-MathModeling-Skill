@@ -20,7 +20,7 @@ description: This skill should be used when the user asks to "审核数学建模
 ## Default Workflow
 
 1. 识别待审 artifact、审核范围和可用证据；缺失内容写入顶层 `limitations`。
-2. 按需读取 `../../shared/paper-quality-standard/README.md` 及相关标准文件。
+2. 按需读取 `../../shared/paper-quality-standard/README.md` 及相关标准文件；若提供 Project Facts，按 `references/project-facts-review.md` 只读校验。
 3. 先运行适用的只读 deterministic checks，再进行 semantic review。
 4. 对候选问题定位 artifact、位置和理由；无 evidence 的候选不得进入正式 findings。
 5. 按 `references/severity-and-evidence-policy.md` 分配 P0/P1/P2，不产生论文通过状态。
@@ -36,7 +36,8 @@ description: This skill should be used when the user asks to "审核数学建模
 ## Bundled Resources
 
 - `schemas/review-request.schema.json`：只读审核输入契约。
-- `schemas/review-result.schema.json`：v2 结构化结果契约。
+- `schemas/review-result.schema.json`：v2 结果 envelope，finding 结构引用 Shared Contract。
+- `../../shared/contracts/`：Project Facts、artifact 和 finding 的共享结构。
 - `scripts/validate_review_result.py`：schema 与 Shared Rule ID 校验。
 - `scripts/lint_paper_style.py`：保守的文本风格风险检测。
 - `scripts/audit_latex_build.py`：LaTeX 主源与日志检查。

@@ -1,6 +1,6 @@
 skill:
   id: huawei-cup-review
-  version: 1.0.0-phase4
+  version: 1.0.0-phase5
   entrypoint: SKILL.md
 
 contract:
@@ -28,6 +28,14 @@ shared_standard:
     - ../../shared/paper-quality-standard/terminology.md
     - ../../shared/paper-quality-standard/reference-standard.md
 
+shared_contracts:
+  access: read_only
+  registry: ../../shared/contracts/README.md
+  project_facts: ../../shared/contracts/project-facts.schema.json
+  artifact_contract: ../../shared/contracts/paper-artifact-contract.md
+  finding: ../../shared/contracts/review-finding.schema.json
+  project_facts_validator: ../../shared/contracts/validate_project_facts.py
+
 schemas:
   request: schemas/review-request.schema.json
   result: schemas/review-result.schema.json
@@ -42,6 +50,8 @@ references:
       use_for: script routing
     - path: references/document-quality-review.md
       use_for: document and layout review
+    - path: references/project-facts-review.md
+      use_for: claim and artifact comparison against shared facts
 
 checks:
   result_contract: scripts/validate_review_result.py

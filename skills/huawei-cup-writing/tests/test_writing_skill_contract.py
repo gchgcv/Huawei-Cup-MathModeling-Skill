@@ -47,6 +47,11 @@ def test_manifest_paths_and_shared_registry_are_real() -> None:
     manifest = yaml.safe_load((SKILL_ROOT / "manifest.yaml").read_text(encoding="utf-8"))
     paths = [manifest["shared_standard"]["registry"]]
     paths.extend(manifest["shared_standard"]["files"])
+    paths.extend(
+        value
+        for key, value in manifest["shared_contracts"].items()
+        if key != "access"
+    )
     paths.extend(item["path"] for item in manifest["references"]["on_demand"])
     paths.extend(manifest["validation"].values())
     for value in paths:
@@ -60,6 +65,16 @@ def test_writing_skill_has_no_legacy_runtime_dependency() -> None:
         if path.name == Path(__file__).name:
             continue
         assert "legacy/" not in path.read_text(encoding="utf-8")
+
+
+def test_project_facts_access_is_read_only() -> None:
+    manifest = yaml.safe_load((SKILL_ROOT / "manifest.yaml").read_text(encoding="utf-8"))
+    assert manifest["shared_contracts"]["access"] == "read_only"
+    reference = (SKILL_ROOT / "references" / "project-facts-consumption.md").read_text(
+        encoding="utf-8"
+    )
+    assert "只读" in reference
+    assert "不得创建、补写或回写" in reference
 
 
 def test_writing_skill_contains_no_review_state_or_finding_logic() -> None:

@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.invalid/huawei-cup-shared/project-facts-v1.schema.json",
+  "title": "Huawei Cup Minimal Project Facts v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract_version", "fact_set_id", "sources", "problem", "model", "results", "claims", "figures", "citations", "limitations"],
+  "properties": {
+    "contract_version": {"const": "1"},
+    "fact_set_id": {"type": "string", "minLength": 1},
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "artifact_id", "locator"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "artifact_id": {"type": "string", "minLength": 1},
+          "locator": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "pattern": "^[a-fA-F0-9]{64}$"}
+        }
+      }
+    },
+    "problem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["questions"],
+      "properties": {
+        "questions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "text", "source_ids"],
+            "properties": {
+              "id": {"type": "string", "minLength": 1},
+              "text": {"type": "string", "minLength": 1},
+              "source_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+            }
+          }
+        }
+      }
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "source_ids", "assumptions", "equations", "parameters"],
+      "properties": {
+        "name": {"type": ["string", "null"]},
+        "source_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "assumptions": {"type": "array", "items": {"$ref": "#/$defs/textFact"}},
+        "equations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "latex", "meaning", "source_ids"],
+            "properties": {
+              "id": {"type": "string", "minLength": 1},
+              "latex": {"type": "string", "minLength": 1},
+              "meaning": {"type": "string", "minLength": 1},
+              "source_ids": {"$ref": "#/$defs/sourceIds"}
+            }
+          }
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "symbol", "meaning", "value", "unit", "source_ids", "evidence_status"],
+            "properties": {
+              "id": {"type": "string", "minLength": 1},
+              "symbol": {"type": "string", "minLength": 1},
+              "meaning": {"type": "string"},
+              "value": {},
+              "unit": {"type": "string"},
+              "source_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+              "evidence_status": {"$ref": "#/$defs/evidenceStatus"}
+            }
+          }
+        }
+      }
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "question_id", "value", "unit", "source_ids", "evidence_status"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "question_id": {"type": "string", "minLength": 1},
+          "value": {},
+          "unit": {"type": "string"},
+          "source_ids": {"$ref": "#/$defs/sourceIds"},
+          "evidence_status": {"$ref": "#/$defs/evidenceStatus"}
+        }
+      }
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "text", "source_ids", "evidence_ids", "evidence_status"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "text": {"type": "string", "minLength": 1},
+          "source_ids": {"$ref": "#/$defs/sourceIds"},
+          "evidence_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+          "evidence_status": {"$ref": "#/$defs/evidenceStatus"}
+        }
+      }
+    },
+    "figures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "path", "purpose", "source_ids", "evidence_status"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "path": {"type": "string", "minLength": 1},
+          "purpose": {"type": "string", "minLength": 1},
+          "source_ids": {"$ref": "#/$defs/sourceIds"},
+          "evidence_status": {"$ref": "#/$defs/evidenceStatus"}
+        }
+      }
+    },
+    "citations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "source", "source_ids", "evidence_status"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "source": {"type": "string", "minLength": 1},
+          "source_ids": {"$ref": "#/$defs/sourceIds"},
+          "evidence_status": {"$ref": "#/$defs/evidenceStatus"}
+        }
+      }
+    },
+    "limitations": {"type": "array", "items": {"type": "string", "minLength": 1}}
+  },
+  "$defs": {
+    "sourceIds": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "evidenceStatus": {"enum": ["VERIFIED", "UNVERIFIED", "MISSING"]},
+    "textFact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "text", "source_ids"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "text": {"type": "string", "minLength": 1},
+        "source_ids": {"$ref": "#/$defs/sourceIds"}
+      }
+    }
+  }
+}
