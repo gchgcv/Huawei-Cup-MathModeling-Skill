@@ -14,6 +14,7 @@
 - `benchmark/integration/{cases.yaml,evaluate_integration.py}`
 - `benchmark/tests/test_phase6_benchmark.py`
 - `benchmark/runs/2026-08-30-independent-agent-ab/`
+- `benchmark/runs/2026-08-30-writing-repair3/`
 - `reports/phase6-writing-review-benchmark.md`
 
 ## Ownership Changes
@@ -29,7 +30,7 @@
 
 六类 Legacy A/B case：防御性、AI 工作日志、浅结果讨论、高质量 clean case、专业术语、必要局限与负面证据。
 
-指标覆盖：事实、关键数字、公式、citation、label/ref、防御性减少、工作日志减少、AI 机械句法减少、论述深度、术语、必要局限、负面证据和 invented result count。关键事实变化和 protected phrase 丢失进入 hard errors。
+指标覆盖：deterministic fidelity、关键数字、公式、citation、label/ref、防御性减少、工作日志减少、AI 机械句法减少、controlled semantic assertions、论述深度、术语、必要局限、负面证据、未声明新增数字和 invented result count。关键事实变化进入 hard errors；语义断言单独计数并保留独立裁决。
 
 ### Review
 
@@ -51,7 +52,7 @@
 
 ```text
 pytest benchmark\tests -q
-14 passed
+17 passed
 
 ruff check benchmark
 All checks passed
@@ -73,7 +74,7 @@ pytest --import-mode=importlib \
   skills\huawei-cup-review\tests \
   legacy\huawei-cup-modeling-writing-v0.9.1\tests -q
 
-129 passed, 12 subtests passed
+135 passed, 12 subtests passed
 ```
 
 默认 pytest import mode 会因 Review 保留的 Legacy 同名测试副本产生 module-name collection conflict；使用 `--import-mode=importlib` 后全量通过。分目录运行同样通过。
@@ -85,7 +86,7 @@ Build:     N/A (no package build configuration)
 Types:     N/A (no configured project type checker)
 Lint:      PASS
 Compile:   PASS
-Tests:     PASS (129 + 12 subtests)
+Tests:     PASS (135 + 12 subtests)
 Security:  PASS (no token/api-key/password/eval/exec pattern match in benchmark)
 ```
 
@@ -101,12 +102,29 @@ Security:  PASS (no token/api-key/password/eval/exec pattern match in benchmark)
 
 机器可读摘要见 `benchmark/runs/2026-08-30-independent-agent-ab/evaluation-summary.json`，完整裁决见同目录 `adjudication.json`。
 
+## Writing Repair3 Rerun
+
+针对首轮失败，Writing 新增 fidelity lock、受保护 token 占位符策略、派生数字授权边界和 mandatory mutation validation gate。Benchmark 同时拆分 deterministic fidelity 与 controlled semantic assertions，不再把等义限定语改写直接当成事实层错误。
+
+repair3 运行目录：`benchmark/runs/2026-08-30-writing-repair3/`。
+
+- Writing A/B：`EXECUTED`，admission=`PASS`。
+- Modular Writing：6/6 cases pass，hard errors=0，semantic failures=0，fact/number/formula/citation/label-ref/term/limitation/negative-evidence rates 均为 1.0，invented result count=0。
+- Legacy：4/6 cases pass，hard errors=5，semantic failures=2，仍存在 reference anchor 和未声明派生数字问题。
+- 独立裁决：确认完整 `\ref{fig:result}`、`\ref{fig:trend}` 已恢复，没有新增或删除数字；浅结果讨论同时保留结果意义和机制证据缺口。
+- repair3 Integration：5/5 envelope cases pass，hash、只读性、Shared Rule ID 和 handoff 均通过。
+- Review：沿用同一 Phase 6 Review 版本的 13/13 synthetic pass；未把该结果扩展为真实长论文能力声明。
+
+总控最终返回 `status=EXECUTED`、`admission=PASS`。机器可读摘要和独立裁决位于 repair3 运行目录。
+
 ## Known Limitations
 
 - Review PASS 仅覆盖 13 个短句 synthetic cases，不证明真实长论文、跨章节一致性、citation 真实性或 source truth 审查能力。
 - Integration PASS 仅证明 envelope、hash、只读与 handoff；Review 未看到改写前原文，无法发现 source-relative 锚点或数值变化。
 - `findings_allowed` 是弱断言，不要求实际检出 finding。
 - exact phrase 与固定词面指标会误伤等义改写，下一轮需区分 deterministic fidelity 与 semantic adjudication。
+- controlled semantic assertions 仍基于短语包含，可能受否定语境、词表外同义改写和术语误用影响；独立 adjudication 仍是必需层。
+- mutation validator 的 multiset 一致不能证明数字与对象的绑定关系完全未交换，也没有覆盖所有 citation/ref command option 变化。
 - Legacy sample PDF 尚未进入真实 A/B。
 
 ## Risks
@@ -117,12 +135,12 @@ Security:  PASS (no token/api-key/password/eval/exec pattern match in benchmark)
 
 ## Gate Decision
 
-FAIL。
+PASS（仅限已声明的 synthetic 与 integration envelope cases）。
 
-总控已实际执行并返回 `status=EXECUTED`、`admission=FAIL`。Review synthetic 与 Integration envelope 均通过，但 Writing A/B 存在不可接受的 protected LaTeX reference anchor 变化；按当前 case contract 还存在新增派生数字。独立裁决排除了两项语义误判后，仍不足以改变 Gate 结论。
+首轮总控确实返回 FAIL；repair3 修复并重新生成真实 Writer 输出、重新进行独立 adjudication 与 Integration 后，总控返回 `status=EXECUTED`、`admission=PASS`。该 PASS 只说明当前六个 Writing cases、十三个 Review cases 与五个 Integration envelopes 达标，不代表真实论文或投稿质量通过。
 
 ## Next Allowed Phase
 
-仍为 Phase 6：修复 Writing fidelity（尤其完整保留 LaTeX label/ref），并把 exact-string fidelity 与 semantic preservation 分层评估后重新运行独立 A/B。
+允许进入 Phase 7 的 `DEPRECATE` 步骤：把旧主 Skill 标记为 `Legacy Coordinator / Compatibility Baseline`，保留兼容入口，不删除文件。
 
-在总控返回 `EXECUTED` 且 `admission=PASS` 前，不允许进入 Phase 7 Legacy 收口。
+计划要求“真实任务验证后才允许删除 Legacy 重复文件”。当前只有 synthetic/envelope evidence，因此 Phase 7 只能做兼容标记与职责收缩，不能执行 `REMOVE`。

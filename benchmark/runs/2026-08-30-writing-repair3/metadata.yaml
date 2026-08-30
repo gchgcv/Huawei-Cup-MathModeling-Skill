@@ -1,0 +1,21 @@
+schema_version: 1
+run_id: 2026-08-30-writing-repair3
+status: COMPLETED_PASS
+legacy_baseline: ../2026-08-30-independent-agent-ab/legacy-writing
+generation_policy:
+  repository_write_allowed: false
+  benchmark_expectations_visible_to_generator: false
+source_tasks:
+  modular_writing:
+    thread_id: 01a05214-4257-7f03-9f15-0c28b7eba186
+    turn_id: 01a05251-ac88-7201-8620-732d21d4cc7e
+    title: Phase6 Modular Writing Outputs
+  independent_adjudication:
+    thread_id: 01a05220-4cf8-7db0-b3e6-b0e4ec3923a3
+    turn_id: 01a05252-f9dd-7931-afa4-ee9ebfb0d347
+    title: Phase6 Independent Adjudication
+  integration:
+    thread_id: 01a0521b-9208-7d70-a63b-0004bf685a25
+    turn_id: 01a05257-34f1-7472-8cb0-9557fe5e5d7e
+    title: Phase6 Integration Agent Run
+pending: []

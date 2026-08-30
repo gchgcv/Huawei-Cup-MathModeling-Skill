@@ -10,7 +10,6 @@ from collections import Counter
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-
 SUPPORTED_SUFFIXES = {".md", ".tex", ".txt"}
 NUMBER_PATTERN = re.compile(
     r"(?<![\w\\])[-+]?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][-+]?\d+)?%?(?![\w])"
@@ -84,12 +83,20 @@ def compare(before: str, after: str) -> dict[str, object]:
                 "before": before_value,
                 "after": after_value,
             }
+    before_numbers = Counter(dict(before_snapshot.numbers))
+    after_numbers = Counter(dict(after_snapshot.numbers))
+    added_numbers = sorted((after_numbers - before_numbers).elements())
+    removed_numbers = sorted((before_numbers - after_numbers).elements())
     return {
         "status": "PASS" if not changes else "FAIL",
         "protected_elements_unchanged": not changes,
         "changes": changes,
         "before": asdict(before_snapshot),
         "after": asdict(after_snapshot),
+        "number_delta": {
+            "added": added_numbers,
+            "removed": removed_numbers,
+        },
     }
 
 
@@ -101,12 +108,37 @@ def _read_text(path: Path) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("before", type=Path)
-    parser.add_argument("after", type=Path)
+    parser.add_argument("before", type=Path, nargs="?")
+    parser.add_argument("after", type=Path, nargs="?")
+    parser.add_argument(
+        "--stdin-json",
+        action="store_true",
+        help="Read an object with before and after strings from stdin.",
+    )
+    parser.add_argument("--before-text")
+    parser.add_argument("--after-text")
     args = parser.parse_args()
     try:
-        report = compare(_read_text(args.before), _read_text(args.after))
-    except (OSError, UnicodeError, ValueError) as error:
+        if args.before_text is not None or args.after_text is not None:
+            if args.before_text is None or args.after_text is None:
+                parser.error("--before-text and --after-text must be used together")
+            report = compare(args.before_text, args.after_text)
+        elif args.stdin_json:
+            payload = json.load(sys.stdin)
+            if not isinstance(payload, dict):
+                raise TypeError("stdin JSON must be an object")
+            before = payload.get("before")
+            after = payload.get("after")
+            if not isinstance(before, str) or not isinstance(after, str):
+                raise TypeError("stdin JSON before and after must be strings")
+            report = compare(before, after)
+        else:
+            if args.before is None or args.after is None:
+                parser.error(
+                    "before and after paths are required without text input options"
+                )
+            report = compare(_read_text(args.before), _read_text(args.after))
+    except (json.JSONDecodeError, OSError, TypeError, UnicodeError, ValueError) as error:
         sys.stderr.write(f"ERROR: {error}\n")
         return 2
     sys.stdout.write(json.dumps(report, ensure_ascii=False, indent=2) + "\n")

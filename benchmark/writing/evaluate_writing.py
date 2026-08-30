@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Read-only Writing benchmark evaluator and Legacy/Modular A/B aggregator."""
+
 from __future__ import annotations
 
 import argparse
 import importlib.util
 import json
 import sys
+from collections import Counter
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
@@ -14,13 +16,19 @@ import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MUTATION_VALIDATOR = (
-    REPO_ROOT / "skills" / "huawei-cup-writing" / "scripts" / "validate_manuscript_mutation.py"
+    REPO_ROOT
+    / "skills"
+    / "huawei-cup-writing"
+    / "scripts"
+    / "validate_manuscript_mutation.py"
 )
 NOT_RUN = "NOT_RUN_AGENT_OUTPUTS_UNAVAILABLE"
 
 
 def _load_compare() -> Any:
-    spec = importlib.util.spec_from_file_location("writing_mutation_validator", MUTATION_VALIDATOR)
+    spec = importlib.util.spec_from_file_location(
+        "writing_mutation_validator", MUTATION_VALIDATOR
+    )
     if spec is None or spec.loader is None:
         raise RuntimeError(f"Cannot load mutation validator: {MUTATION_VALIDATOR}")
     module = importlib.util.module_from_spec(spec)
@@ -72,20 +80,75 @@ def _added_count(mutation: Mapping[str, Any], field: str) -> int:
     return sum(max(0, count - before.get(value, 0)) for value, count in after.items())
 
 
-def evaluate_case(case: Mapping[str, Any], candidate: Mapping[str, Any]) -> dict[str, Any]:
+def _semantic_assertions(
+    case: Mapping[str, Any], output: str
+) -> tuple[list[dict[str, object]], list[str]]:
+    results: list[dict[str, object]] = []
+    failures: list[str] = []
+    for raw in case.get("semantic_assertions", []):
+        if not isinstance(raw, Mapping):
+            continue
+        assertion_id = str(raw.get("id", "unnamed"))
+        phrases = [str(item) for item in raw.get("any_phrases", [])]
+        passed = bool(phrases) and any(phrase in output for phrase in phrases)
+        results.append(
+            {
+                "id": assertion_id,
+                "kind": str(raw.get("kind", "general")),
+                "status": "PASS" if passed else "FAIL",
+                "matched_phrases": [phrase for phrase in phrases if phrase in output],
+            }
+        )
+        if not passed:
+            failures.append(assertion_id)
+    return results, failures
+
+
+def _semantic_kind_pass(assertions: list[dict[str, object]], kind: str) -> bool:
+    relevant = [item for item in assertions if item.get("kind") == kind]
+    return not relevant or all(item.get("status") == "PASS" for item in relevant)
+
+
+def evaluate_case(
+    case: Mapping[str, Any], candidate: Mapping[str, Any]
+) -> dict[str, Any]:
     errors: list[str] = []
     if candidate.get("case_id") != case.get("id"):
         errors.append("case_id_mismatch")
-    if candidate.get("system_under_test") not in {"legacy-v0.9.1", "modular-writing"}:
+    system_under_test = candidate.get("system_under_test")
+    if not (
+        system_under_test == "legacy-v0.9.1"
+        or (
+            isinstance(system_under_test, str)
+            and system_under_test.startswith("modular-writing")
+        )
+    ):
         errors.append("unknown_system_under_test")
     output = candidate.get("output_text")
     if not isinstance(output, str) or not output.strip():
-        return {"case_id": case.get("id"), "status": "INVALID_OUTPUT", "errors": [*errors, "output_text_missing"]}
+        return {
+            "case_id": case.get("id"),
+            "status": "INVALID_OUTPUT",
+            "errors": [*errors, "output_text_missing"],
+        }
 
     source = str(case.get("input_text", ""))
     mutation = compare_protected(source, output)
     changed = set(mutation["changes"])
-    for field in sorted(changed):
+    number_delta = mutation.get("number_delta", {})
+    added_numbers = Counter(str(item) for item in number_delta.get("added", []))
+    removed_numbers = Counter(str(item) for item in number_delta.get("removed", []))
+    allowed_added_numbers = Counter(
+        str(item) for item in case.get("allowed_added_numbers", [])
+    )
+    undeclared_added_numbers = sorted(
+        (added_numbers - allowed_added_numbers).elements()
+    )
+    unauthorized_number_change = bool(removed_numbers or undeclared_added_numbers)
+    effective_changes = changed - {"numbers"}
+    if unauthorized_number_change:
+        effective_changes.add("numbers")
+    for field in sorted(effective_changes):
         errors.append(f"protected_{field}_changed")
 
     protected_phrases = [str(item) for item in case.get("protected_phrases", [])]
@@ -98,29 +161,49 @@ def evaluate_case(case: Mapping[str, Any], candidate: Mapping[str, Any]) -> dict
     required = [str(item) for item in case.get("required_phrases", [])]
     missing_required = [item for item in required if item not in output]
     protected_kinds = {str(item) for item in case.get("protected_kinds", [])}
+    semantic_results, semantic_failures = _semantic_assertions(case, output)
 
     metrics = {
-        "protected_elements_unchanged": not changed,
-        "numbers_preserved": "numbers" not in changed,
-        "formulas_preserved": "formulas" not in changed,
-        "citations_preserved": "citations" not in changed,
-        "labels_and_references_preserved": not ({"labels", "references"} & changed),
+        "deterministic_fidelity_pass": not effective_changes and not missing_protected,
+        "protected_elements_unchanged": not effective_changes,
+        "numbers_preserved": "numbers" not in effective_changes,
+        "formulas_preserved": "formulas" not in effective_changes,
+        "citations_preserved": "citations" not in effective_changes,
+        "labels_and_references_preserved": not (
+            {"labels", "references"} & effective_changes
+        ),
         "undesirable_before": before_hits,
         "undesirable_after": after_hits,
         "undesirable_reduced": before_hits == 0 or after_hits < before_hits,
         "required_phrases_present": not missing_required,
-        "technical_terms_preserved": "technical_terms" not in protected_kinds or not missing_protected,
-        "necessary_limitation_preserved": "necessary_limitation" not in protected_kinds or not missing_protected,
-        "negative_evidence_preserved": "negative_evidence" not in protected_kinds or not missing_protected,
-        "invented_number_count": _added_count(mutation, "numbers"),
+        "semantic_assertions_pass": not semantic_failures,
+        "technical_terms_preserved": "technical_terms" not in protected_kinds
+        or not missing_protected,
+        "necessary_limitation_preserved": "necessary_limitation" not in protected_kinds
+        or _semantic_kind_pass(semantic_results, "necessary_limitation"),
+        "negative_evidence_preserved": "negative_evidence" not in protected_kinds
+        or _semantic_kind_pass(semantic_results, "negative_evidence"),
+        "declared_derived_number_count": sum(
+            (added_numbers & allowed_added_numbers).values()
+        ),
+        "undeclared_added_number_count": len(undeclared_added_numbers),
+        "invented_number_count": len(undeclared_added_numbers),
         "invented_formula_count": _added_count(mutation, "formulas"),
     }
     return {
         "case_id": case.get("id"),
         "case_class": case.get("class"),
-        "status": "PASS" if not errors and not missing_required else "FAIL",
+        "status": "PASS"
+        if not errors and not missing_required and not semantic_failures
+        else "FAIL",
+        "deterministic_status": "PASS"
+        if not errors and not missing_required
+        else "FAIL",
+        "semantic_status": "PASS" if not semantic_failures else "FAIL",
         "errors": errors,
         "missing_required": missing_required,
+        "semantic_assertions": semantic_results,
+        "semantic_failures": semantic_failures,
         "metrics": metrics,
     }
 
@@ -129,28 +212,37 @@ def evaluate_system(catalog_path: Path, results_dir: Path | None) -> dict[str, A
     catalog = load_catalog(catalog_path)
     cases = [item for item in catalog["cases"] if isinstance(item, Mapping)]
     if results_dir is None:
-        return {"status": NOT_RUN, "cases_expected": len(cases), "metrics": None, "limitations": ["candidate_results_not_supplied"]}
+        return {
+            "status": NOT_RUN,
+            "cases_expected": len(cases),
+            "metrics": None,
+            "limitations": ["candidate_results_not_supplied"],
+        }
     candidates = _load_candidates(results_dir)
     missing = [str(case["id"]) for case in cases if str(case["id"]) not in candidates]
     if missing:
-        return {"status": NOT_RUN, "cases_expected": len(cases), "metrics": None, "limitations": [f"missing_candidate_results:{','.join(missing)}"]}
+        return {
+            "status": NOT_RUN,
+            "cases_expected": len(cases),
+            "metrics": None,
+            "limitations": [f"missing_candidate_results:{','.join(missing)}"],
+        }
 
-    results = [
-        evaluate_case(case, candidates[str(case["id"])])
-        for case in cases
-    ]
+    results = [evaluate_case(case, candidates[str(case["id"])]) for case in cases]
     passed = [item for item in results if item["status"] == "PASS"]
 
     def rate(items: list[dict[str, Any]], key: str) -> float:
-        return sum(item.get("metrics", {}).get(key, False) for item in items) / len(items)
+        if not items:
+            return 1.0
+        return sum(item.get("metrics", {}).get(key, False) for item in items) / len(
+            items
+        )
 
     defensive = [item for item in results if item.get("case_class") == "defensive"]
     ai_style = [item for item in results if item.get("case_class") == "ai_style"]
     depth = [item for item in results if item.get("case_class") == "shallow_depth"]
     technical = [
-        item
-        for item in results
-        if item.get("case_class") == "terminology_resistance"
+        item for item in results if item.get("case_class") == "terminology_resistance"
     ]
     limitations = [
         item
@@ -158,14 +250,15 @@ def evaluate_system(catalog_path: Path, results_dir: Path | None) -> dict[str, A
         if item.get("case_class") in {"clean", "limitation_resistance"}
     ]
     negative = [
-        item
-        for item in results
-        if item.get("case_class") == "limitation_resistance"
+        item for item in results if item.get("case_class") == "limitation_resistance"
     ]
     metrics = {
         "cases": len(results),
         "cases_passed": len(passed),
         "hard_error_count": sum(len(item["errors"]) for item in results),
+        "semantic_failure_count": sum(
+            len(item["semantic_failures"]) for item in results
+        ),
         "fact_preservation_rate": rate(results, "protected_elements_unchanged"),
         "key_number_preservation_rate": rate(results, "numbers_preserved"),
         "formula_preservation_rate": rate(results, "formulas_preserved"),
@@ -174,24 +267,46 @@ def evaluate_system(catalog_path: Path, results_dir: Path | None) -> dict[str, A
         "defensive_expression_reduction_rate": rate(defensive, "undesirable_reduced"),
         "worklog_narrative_reduction_rate": rate(ai_style, "undesirable_reduced"),
         "ai_mechanical_syntax_reduction_rate": rate(ai_style, "undesirable_reduced"),
-        "argument_depth_requirement_rate": rate(depth, "required_phrases_present"),
-        "technical_term_preservation_rate": rate(technical, "technical_terms_preserved"),
-        "necessary_limitation_preservation_rate": rate(limitations, "necessary_limitation_preserved"),
-        "negative_evidence_preservation_rate": rate(negative, "negative_evidence_preserved"),
+        "argument_depth_requirement_rate": rate(depth, "semantic_assertions_pass"),
+        "technical_term_preservation_rate": rate(
+            technical, "technical_terms_preserved"
+        ),
+        "necessary_limitation_preservation_rate": rate(
+            limitations, "necessary_limitation_preserved"
+        ),
+        "negative_evidence_preservation_rate": rate(
+            negative, "negative_evidence_preserved"
+        ),
         "invented_result_count": sum(
             item.get("metrics", {}).get("invented_number_count", 0)
             + item.get("metrics", {}).get("invented_formula_count", 0)
             for item in results
         ),
     }
-    return {"status": "EXECUTED", "metrics": metrics, "cases": results, "limitations": ["metrics_cover_explicit_synthetic_case_assertions_only"]}
+    return {
+        "status": "EXECUTED",
+        "metrics": metrics,
+        "cases": results,
+        "limitations": [
+            "deterministic fidelity and controlled semantic assertions are reported separately",
+            "semantic phrase sets are fixture heuristics and still require independent adjudication",
+        ],
+    }
 
 
-def evaluate_ab(catalog_path: Path, legacy_dir: Path | None, modular_dir: Path | None) -> dict[str, Any]:
+def evaluate_ab(
+    catalog_path: Path, legacy_dir: Path | None, modular_dir: Path | None
+) -> dict[str, Any]:
     legacy = evaluate_system(catalog_path, legacy_dir)
     modular = evaluate_system(catalog_path, modular_dir)
     if legacy["status"] != "EXECUTED" or modular["status"] != "EXECUTED":
-        return {"status": NOT_RUN, "legacy": legacy, "modular": modular, "admission": None, "limitations": ["both_real_output_sets_are_required_for_ab"]}
+        return {
+            "status": NOT_RUN,
+            "legacy": legacy,
+            "modular": modular,
+            "admission": None,
+            "limitations": ["both_real_output_sets_are_required_for_ab"],
+        }
     legacy_metrics = legacy["metrics"]
     modular_metrics = modular["metrics"]
     protected_rates = (
@@ -213,6 +328,8 @@ def evaluate_ab(catalog_path: Path, legacy_dir: Path | None, modular_dir: Path |
     ]
     if modular_metrics["hard_error_count"] or modular_metrics["invented_result_count"]:
         regressions.append("modular_hard_error_count")
+    if modular_metrics["semantic_failure_count"]:
+        regressions.append("modular_semantic_failure_count")
     return {
         "status": "EXECUTED",
         "legacy": legacy,
@@ -225,7 +342,9 @@ def evaluate_ab(catalog_path: Path, legacy_dir: Path | None, modular_dir: Path |
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--catalog", type=Path, default=Path(__file__).with_name("cases.yaml"))
+    parser.add_argument(
+        "--catalog", type=Path, default=Path(__file__).with_name("cases.yaml")
+    )
     parser.add_argument("--legacy-results", type=Path)
     parser.add_argument("--modular-results", type=Path)
     args = parser.parse_args()

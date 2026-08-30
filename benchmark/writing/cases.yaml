@@ -13,6 +13,7 @@ cases:
     undesirable_patterns: ['本文不能证明']
     required_phrases: ['A 市 2024 年数据']
     protected_phrases: ['12.5', '$x+y=1$', '\cite{source-a}']
+    allowed_added_numbers: []
     protected_kinds: [necessary_scope]
 
   - id: ai_worklog
@@ -22,6 +23,7 @@ cases:
     undesirable_patterns: ['首先', '随后', '然后', '最后']
     required_phrases: ['8.4']
     protected_phrases: ['8.4', '\ref{fig:result}']
+    allowed_added_numbers: []
     protected_kinds: []
 
   - id: shallow_result
@@ -29,18 +31,31 @@ cases:
     rules: [DEPTH-002, FIG-005, CLAIM-002]
     input_text: '图\ref{fig:trend}显示指标从 0.62 上升到 0.79。'
     undesirable_patterns: []
-    required_phrases: ['0.62', '0.79', '原因', '意味着']
+    required_phrases: ['0.62', '0.79']
     protected_phrases: ['0.62', '0.79', '\ref{fig:trend}']
+    allowed_added_numbers: []
     protected_kinds: []
+    semantic_assertions:
+      - id: supported_mechanism_or_evidence_gap
+        kind: argument_depth
+        any_phrases: ['原因', '机制', '约束', '证据不足', '无法解释']
+      - id: result_relevance
+        kind: argument_depth
+        any_phrases: ['意味着', '表明', '说明']
 
   - id: high_quality
     class: clean
     rules: [PROSE-002, DEPTH-002, CLAIM-001]
     input_text: '在已观测的 30 个样本内，误差由 4.8% 降至 3.1%；该变化与约束松弛后的可行域扩大一致，但不外推到未观测地区。'
     undesirable_patterns: []
-    required_phrases: ['30', '4.8%', '3.1%', '不外推到未观测地区']
-    protected_phrases: ['30', '4.8%', '3.1%', '不外推到未观测地区']
+    required_phrases: ['30', '4.8%', '3.1%']
+    protected_phrases: ['30', '4.8%', '3.1%']
+    allowed_added_numbers: []
     protected_kinds: [necessary_limitation]
+    semantic_assertions:
+      - id: observation_boundary_preserved
+        kind: necessary_limitation
+        any_phrases: ['不外推到未观测地区', '不外推至未观测地区', '适用范围限于已观测地区']
 
   - id: technical_terms
     class: terminology_resistance
@@ -49,6 +64,7 @@ cases:
     undesirable_patterns: []
     required_phrases: ['动态耦合机制', '拓扑约束', '稳健优化']
     protected_phrases: ['动态耦合机制', '拓扑约束', '稳健优化', '$\lambda=0.3$']
+    allowed_added_numbers: []
     protected_kinds: [technical_terms]
 
   - id: necessary_limitation
@@ -56,6 +72,17 @@ cases:
     rules: [ADW-002, ADW-004, CLAIM-006, DEPTH-005]
     input_text: '由于未控制季节因素，本结果不作因果解释；方案在能耗指标上不占优，但在给定成本约束下可行。'
     undesirable_patterns: []
-    required_phrases: ['未控制季节因素', '不作因果解释', '能耗指标上不占优']
-    protected_phrases: ['未控制季节因素', '不作因果解释', '能耗指标上不占优']
+    required_phrases: []
+    protected_phrases: []
+    allowed_added_numbers: []
     protected_kinds: [necessary_limitation, negative_evidence]
+    semantic_assertions:
+      - id: seasonal_confounding_preserved
+        kind: necessary_limitation
+        any_phrases: ['未控制季节因素', '没有控制季节因素']
+      - id: causal_boundary_preserved
+        kind: necessary_limitation
+        any_phrases: ['不作因果解释', '不能作因果解释', '仅用于描述观测关系']
+      - id: energy_tradeoff_preserved
+        kind: negative_evidence
+        any_phrases: ['能耗指标上不占优', '能耗指标不占优']

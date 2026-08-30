@@ -1,5 +1,5 @@
 name: huawei-cup-writing
-version: 1.0.0-phase5
+version: 1.0.0-phase6-repair1
 role: evidence_preserving_paper_construction
 description: Construct or revise Chinese mathematical-modeling papers from frozen, traceable evidence without changing model facts, computed results, formulas, citations, or submission state.
 
@@ -71,6 +71,8 @@ references:
   on_demand:
     - condition: general Chinese academic prose construction
       path: references/prose-construction.md
+    - condition: revising existing text with numbers, formulas, citations, labels, or references
+      path: references/fidelity-and-derived-values.md
     - condition: defensive wording, caveats, scope, or uncertainty
       path: references/anti-defensive-transformation.md
     - condition: mechanical or AI-like sentence patterns
@@ -103,4 +105,6 @@ outputs:
   - section_draft
   - authorized_manuscript_patch
   - revision_summary
+  - fidelity_validation
+  - declared_derived_values
   - unresolved_evidence_gaps

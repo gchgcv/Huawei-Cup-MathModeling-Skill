@@ -1,0 +1,42 @@
+{
+  "system_under_test": "modular-writing-phase6-repair3",
+  "outputs": [
+    {
+      "case_id": "defensive_scope",
+      "output_text": "研究结论适用于 A 市 2024 年数据所覆盖的样本。方案成本为 12.5 万元，模型满足 $x+y=1$，相关依据见\\cite{source-a}；现有证据不支持将结论外推至其他地区。",
+      "declared_derived_values": [],
+      "fidelity_validation": {"status": "PASS", "changes": {}, "number_delta": {"added": [], "removed": []}}
+    },
+    {
+      "case_id": "ai_worklog",
+      "output_text": "模型以清洗后的数据为输入，通过建模与参数求解得到目标值 8.4，结果见图\\ref{fig:result}。",
+      "declared_derived_values": [],
+      "fidelity_validation": {"status": "PASS", "changes": {}, "number_delta": {"added": [], "removed": []}}
+    },
+    {
+      "case_id": "shallow_result",
+      "output_text": "图\\ref{fig:trend}显示，指标从 0.62 上升到 0.79，表明在当前图示条件下该指标处于更高水平；现有证据不足以判断这一变化的形成机制。",
+      "declared_derived_values": [],
+      "fidelity_validation": {"status": "PASS", "changes": {}, "number_delta": {"added": [], "removed": []}}
+    },
+    {
+      "case_id": "high_quality",
+      "output_text": "在已观测的 30 个样本内，误差由 4.8% 降至 3.1%；这一变化与约束松弛后的可行域扩大一致。该结论仅限于已观测样本，不外推到未观测地区。",
+      "declared_derived_values": [],
+      "fidelity_validation": {"status": "PASS", "changes": {}, "number_delta": {"added": [], "removed": []}}
+    },
+    {
+      "case_id": "technical_terms",
+      "output_text": "动态耦合机制通过拓扑约束进入稳健优化模型，其中参数 $\\lambda=0.3$ 控制惩罚强度。",
+      "declared_derived_values": [],
+      "fidelity_validation": {"status": "PASS", "changes": {}, "number_delta": {"added": [], "removed": []}}
+    },
+    {
+      "case_id": "necessary_limitation",
+      "output_text": "在给定成本约束下，方案可行，但在能耗指标上不占优。由于未控制季节因素，本结果不作因果解释。",
+      "declared_derived_values": [],
+      "fidelity_validation": {"status": "PASS", "changes": {}, "number_delta": {"added": [], "removed": []}}
+    }
+  ],
+  "writes_performed": []
+}

@@ -1,0 +1,33 @@
+{
+  "adjudication_status": "COMPLETED",
+  "writing_repair3": {
+    "admission": "PASS",
+    "cases_passed": 6,
+    "hard_errors": [],
+    "semantic_failures": [],
+    "confirmed_improvements": [
+      "All six cases independently pass deterministic fidelity validation.",
+      "The complete ref anchors fig:result and fig:trend are preserved.",
+      "All source numbers, formulas, citation keys, and protected terms are preserved.",
+      "No case adds or removes a number and all declared_derived_values are empty.",
+      "shallow_result states both result relevance and the mechanism evidence gap without inventing a cause.",
+      "Necessary scope, causal limitation, and negative evidence remain present."
+    ]
+  },
+  "benchmark_policy": {
+    "separation_valid": true,
+    "remaining_risks": [
+      "Substring semantic assertions can false-pass negation or irony.",
+      "A fixed phrase vocabulary can false-fail valid paraphrases outside the fixture vocabulary.",
+      "Multiset fidelity cannot prove that every number remains bound to the same object and claim.",
+      "The general validator compares citation keys and reference labels but does not fully preserve every command type and option.",
+      "Term presence alone cannot prove correct semantic use."
+    ]
+  },
+  "phase6_writing_gate": "PASS",
+  "limitations": [
+    "This admission covers six synthetic Writing cases only.",
+    "It does not validate a real full paper, cross-section consistency, figure truth, citation truth, or submission quality."
+  ],
+  "writes_performed": []
+}

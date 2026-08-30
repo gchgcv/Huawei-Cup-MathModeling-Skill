@@ -9,7 +9,6 @@ from pathlib import Path
 import pytest
 import yaml
 
-
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SHARED_ROOT = REPO_ROOT / "shared" / "paper-quality-standard"
@@ -19,7 +18,9 @@ RULE_ID = re.compile(r"\b[A-Z]+-\d{3}\b")
 RULE_HEADER = re.compile(r"^## ([A-Z]+-\d{3}) —", re.MULTILINE)
 
 
-def _run_validator(tmp_path: Path, before: str, after: str) -> subprocess.CompletedProcess[str]:
+def _run_validator(
+    tmp_path: Path, before: str, after: str
+) -> subprocess.CompletedProcess[str]:
     before_path = tmp_path / "before.tex"
     after_path = tmp_path / "after.tex"
     before_path.write_text(before, encoding="utf-8")
@@ -44,18 +45,34 @@ def test_frontmatter_has_stable_identity_and_natural_triggers() -> None:
 
 
 def test_manifest_paths_and_shared_registry_are_real() -> None:
-    manifest = yaml.safe_load((SKILL_ROOT / "manifest.yaml").read_text(encoding="utf-8"))
+    manifest = yaml.safe_load(
+        (SKILL_ROOT / "manifest.yaml").read_text(encoding="utf-8")
+    )
     paths = [manifest["shared_standard"]["registry"]]
     paths.extend(manifest["shared_standard"]["files"])
     paths.extend(
-        value
-        for key, value in manifest["shared_contracts"].items()
-        if key != "access"
+        value for key, value in manifest["shared_contracts"].items() if key != "access"
     )
     paths.extend(item["path"] for item in manifest["references"]["on_demand"])
     paths.extend(manifest["validation"].values())
     for value in paths:
         assert (SKILL_ROOT / value).resolve().exists(), value
+
+
+def test_existing_text_revision_requires_fidelity_lock() -> None:
+    skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+    reference = (
+        SKILL_ROOT / "references" / "fidelity-and-derived-values.md"
+    ).read_text(encoding="utf-8")
+    prompt = (SKILL_ROOT / "agents" / "openai.yaml").read_text(encoding="utf-8")
+    assert "fidelity-and-derived-values.md" in skill
+    assert "完整 LaTeX token" in skill
+    assert "默认禁止新增派生数字" in skill
+    assert "\\ref{fig:result}" in reference
+    assert "declared_derived_values" in reference
+    assert "--before-text" in reference
+    assert "validator 未 PASS 时不得返回" in skill
+    assert "可复算不等于获准写入" in prompt
 
 
 def test_writing_skill_has_no_legacy_runtime_dependency() -> None:
@@ -68,7 +85,9 @@ def test_writing_skill_has_no_legacy_runtime_dependency() -> None:
 
 
 def test_project_facts_access_is_read_only() -> None:
-    manifest = yaml.safe_load((SKILL_ROOT / "manifest.yaml").read_text(encoding="utf-8"))
+    manifest = yaml.safe_load(
+        (SKILL_ROOT / "manifest.yaml").read_text(encoding="utf-8")
+    )
     assert manifest["shared_contracts"]["access"] == "read_only"
     reference = (SKILL_ROOT / "references" / "project-facts-consumption.md").read_text(
         encoding="utf-8"
@@ -102,7 +121,9 @@ def test_writing_references_use_existing_rule_ids_without_copying_rules() -> Non
         for path in SHARED_ROOT.glob("*.md")
         if path.name != "README.md"
     ]
-    known_ids = {rule_id for text in shared_texts for rule_id in RULE_HEADER.findall(text)}
+    known_ids = {
+        rule_id for text in shared_texts for rule_id in RULE_HEADER.findall(text)
+    }
     statements: set[str] = set()
     for text in shared_texts:
         for line in text.splitlines():
@@ -140,7 +161,11 @@ def test_mutation_protector_accepts_prose_only_rewrite(tmp_path: Path) -> None:
         ("结果为 12.5%。", "结果为 13.5%。", "numbers"),
         ("模型为 $y=ax+b$。", "模型为 $y=ax-b$。", "formulas"),
         ("依据\\cite{key-a}。", "依据\\cite{key-b}。", "citations"),
-        ("\\label{sec:a} 见\\ref{sec:a}。", "\\label{sec:b} 见\\ref{sec:b}。", "labels"),
+        (
+            "\\label{sec:a} 见\\ref{sec:a}。",
+            "\\label{sec:b} 见\\ref{sec:b}。",
+            "labels",
+        ),
     ],
 )
 def test_mutation_protector_rejects_protected_changes(
@@ -154,6 +179,38 @@ def test_mutation_protector_rejects_protected_changes(
     report = json.loads(result.stdout)
     assert report["status"] == "FAIL"
     assert changed_field in report["changes"]
+
+
+def test_mutation_protector_reports_added_and_removed_numbers(tmp_path: Path) -> None:
+    result = _run_validator(
+        tmp_path,
+        "误差由 4.8% 降至 3.1%。",
+        "误差由 4.8% 降至 3.1%，下降 1.7 个百分点。",
+    )
+    assert result.returncode == 1
+    report = json.loads(result.stdout)
+    assert report["number_delta"] == {"added": ["1.7"], "removed": []}
+
+
+def test_mutation_protector_accepts_text_arguments_without_files() -> None:
+    before = "结果为 8.4，见图\\ref{fig:result}。"
+    after = "图\\ref{fig:result}给出结果 8.4。"
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(VALIDATOR),
+            "--before-text",
+            before,
+            "--after-text",
+            after,
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    assert result.returncode == 0
+    assert json.loads(result.stdout)["status"] == "PASS"
 
 
 def test_mutation_protector_is_read_only() -> None:
@@ -173,7 +230,7 @@ def test_writing_case_catalog_covers_required_behavior_classes() -> None:
     catalog = yaml.safe_load(
         (SKILL_ROOT / "tests" / "writing-cases.yaml").read_text(encoding="utf-8")
     )
-    assert catalog["status"] == "SPECIFICATION_ONLY_PENDING_PHASE6_EXECUTION"
+    assert catalog["status"] == "SPECIFICATION_ONLY"
     cases = catalog["cases"]
     assert len({case["id"] for case in cases}) == len(cases)
     by_class = {
@@ -189,7 +246,5 @@ def test_writing_case_catalog_covers_required_behavior_classes() -> None:
         for path in SHARED_ROOT.glob("*.md")
         for rule_id in RULE_HEADER.findall(path.read_text(encoding="utf-8"))
     }
-    referenced_ids = {
-        rule_id for case in cases for rule_id in case.get("rules", [])
-    }
+    referenced_ids = {rule_id for case in cases for rule_id in case.get("rules", [])}
     assert referenced_ids <= shared_ids

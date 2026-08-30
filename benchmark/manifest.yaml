@@ -36,6 +36,8 @@ required_metrics:
     - technical_term_preservation_rate
     - necessary_limitation_preservation_rate
     - negative_evidence_preservation_rate
+    - semantic_failure_count
+    - undeclared_added_number_count
     - invented_result_count
   review:
     - seeded_fault_recall

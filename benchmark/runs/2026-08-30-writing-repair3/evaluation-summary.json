@@ -1,0 +1,48 @@
+{
+  "run_id": "2026-08-30-writing-repair3",
+  "status": "EXECUTED",
+  "automated_admission": "PASS",
+  "independent_adjudication": "PASS",
+  "phase6_writing_gate": "PASS",
+  "phase6_overall_gate": "PASS",
+  "legacy": {
+    "cases_passed": 4,
+    "cases": 6,
+    "hard_error_count": 5,
+    "semantic_failure_count": 2,
+    "fact_preservation_rate": 0.6666666666666666,
+    "label_ref_protection_rate": 0.6666666666666666,
+    "invented_result_count": 1
+  },
+  "modular_repair3": {
+    "cases_passed": 6,
+    "cases": 6,
+    "hard_error_count": 0,
+    "semantic_failure_count": 0,
+    "fact_preservation_rate": 1.0,
+    "key_number_preservation_rate": 1.0,
+    "formula_preservation_rate": 1.0,
+    "citation_protection_rate": 1.0,
+    "label_ref_protection_rate": 1.0,
+    "argument_depth_requirement_rate": 1.0,
+    "technical_term_preservation_rate": 1.0,
+    "necessary_limitation_preservation_rate": 1.0,
+    "negative_evidence_preservation_rate": 1.0,
+    "invented_result_count": 0
+  },
+  "review": {
+    "cases_passed": 13,
+    "cases": 13,
+    "seeded_fault_recall": 1.0,
+    "false_positive_count": 0,
+    "mutation_count": 0
+  },
+  "integration_repair3": {
+    "cases_passed": 5,
+    "cases": 5,
+    "review_immutability_rate": 1.0,
+    "shared_rule_id_consistency_rate": 1.0,
+    "finding_handoff_coverage": 1.0
+  },
+  "scope_limit": "Admission applies only to declared synthetic and envelope cases, not real-paper or submission quality."
+}

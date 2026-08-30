@@ -33,11 +33,12 @@ description: This skill should be used when the user asks to “写数学建模�
 1. 确认用户要求的章节、载体和交付方式；默认 `content-only`。
 2. 读取 `../../shared/paper-quality-standard/README.md`，再按任务加载相关 Rule 文件。
 3. 若提供 Project Facts，先按 `references/project-facts-consumption.md` 只读校验并提取受保护事实；否则从用户材料建立本轮受保护事实集：数字、公式、模型含义、结果、citation key、label/ref、单位和适用边界。
-4. 选择满足请求的最小写作模式：`content-only`、`section-draft`、`micro-revision`、`revision` 或 `full-paper`。
-5. 加载最少的 Writing reference，按 Shared Rule ID 建设文本；不得复制 Shared 规范正文形成第二定义。
-6. 改写后执行事实层、语义层和表达层检查。对纯文本/LaTeX 改写可运行 `scripts/validate_manuscript_mutation.py` 比较改写前后受保护元素。
-7. 只有用户明确授权写回时，才按 `references/controlled-document-editing.md` 修改唯一主稿；否则返回正文、patch 建议或 dry-run 结果。
-8. 输出修改结果、使用的证据、保留的真实边界和未解决证据缺口。需要独立验收时，将当前产物交给单独的审核能力。
+4. 改写现有文本时必须加载 `references/fidelity-and-derived-values.md`：先锁定完整 LaTeX token 和原始数字，再只改写 token 之间的自然语言。默认禁止新增派生数字；“可以算出”不等于“获准写入”。
+5. 选择满足请求的最小写作模式：`content-only`、`section-draft`、`micro-revision`、`revision` 或 `full-paper`。
+6. 加载最少的 Writing reference，按 Shared Rule ID 建设文本；不得复制 Shared 规范正文形成第二定义。
+7. 改写后分两层检查：deterministic fidelity 检查 token、数字、公式和 citation；semantic preservation 检查主张范围、必要局限、负面证据和术语含义。只要存在改写前文本，必须运行 `scripts/validate_manuscript_mutation.py`；validator 未 PASS 时不得返回改写正文，必须修复并重跑。无法运行时保留原文并报告 `NOT_RUN`。
+8. 只有用户明确授权写回时，才按 `references/controlled-document-editing.md` 修改唯一主稿；否则返回正文、patch 建议或 dry-run 结果。
+9. 输出修改结果、使用的证据、保留的真实边界、`declared_derived_values`（默认空列表）和未解决证据缺口。需要独立验收时，将当前产物交给单独的审核能力。
 
 ## Protected Layers
 
@@ -58,6 +59,7 @@ description: This skill should be used when the user asks to “写数学建模�
 
 - `manifest.yaml`：任务路由、Shared Rule 文件和权限清单；
 - `references/`：只定义“如何写”，不重新定义“什么是合格论文”；
+- `references/fidelity-and-derived-values.md`：改写现有文本时的 token 锁定、派生数字授权和证据不足处理；
 - `../../shared/contracts/`：Project Facts、artifact 和跨模块结构的只读契约；
 - `scripts/validate_manuscript_mutation.py`：只读比较改写前后的受保护元素；
 - `templates/latex/working-draft/`：仅在用户明确要求新建 LaTeX 且没有现有模板时使用的非官方工作稿。
@@ -70,4 +72,5 @@ description: This skill should be used when the user asks to “写数学建模�
 - 哪些事实和证据被保留；
 - 是否写入了主稿，以及授权来源；
 - mutation protector 是否通过或为何不适用；
+- 每项改写的 `fidelity_validation` 状态与 `declared_derived_values`；
 - 哪些信息仍缺证据，因而没有写成事实。

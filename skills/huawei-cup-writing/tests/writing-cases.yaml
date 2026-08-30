@@ -1,5 +1,5 @@
 schema_version: 1
-status: SPECIFICATION_ONLY_PENDING_PHASE6_EXECUTION
+status: SPECIFICATION_ONLY
 
 cases:
   - id: normal_prose_polish
