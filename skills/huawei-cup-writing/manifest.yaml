@@ -1,0 +1,97 @@
+name: huawei-cup-writing
+version: 1.0.0-phase3
+role: evidence_preserving_paper_construction
+description: Construct or revise Chinese mathematical-modeling papers from frozen, traceable evidence without changing model facts, computed results, formulas, citations, or submission state.
+
+shared_standard:
+  root: ../../shared/paper-quality-standard
+  registry: ../../shared/paper-quality-standard/README.md
+  files:
+    - ../../shared/paper-quality-standard/academic-prose.md
+    - ../../shared/paper-quality-standard/anti-ai-style.md
+    - ../../shared/paper-quality-standard/anti-defensive-writing.md
+    - ../../shared/paper-quality-standard/argument-depth.md
+    - ../../shared/paper-quality-standard/claim-evidence.md
+    - ../../shared/paper-quality-standard/abstract-standard.md
+    - ../../shared/paper-quality-standard/section-structure.md
+    - ../../shared/paper-quality-standard/figure-table-standard.md
+    - ../../shared/paper-quality-standard/academic-format.md
+    - ../../shared/paper-quality-standard/number-unit-precision.md
+    - ../../shared/paper-quality-standard/terminology.md
+    - ../../shared/paper-quality-standard/reference-standard.md
+
+default_mode: content-only
+
+modes:
+  content-only:
+    writes_project_files: false
+    description: Return paper text or a proposed patch without modifying files.
+  section-draft:
+    writes_project_files: false
+    description: Draft one requested section from supplied evidence.
+  micro-revision:
+    writes_project_files: explicit_user_authorization_only
+    description: Apply a tightly localized change to the authoritative manuscript and validate affected output.
+  revision:
+    writes_project_files: explicit_user_authorization_only
+    description: Revise a declared manuscript scope and escalate when dependencies propagate.
+  full-paper:
+    writes_project_files: explicit_user_authorization_only
+    description: Construct or revise the requested complete paper without inventing missing evidence.
+
+protected_inputs:
+  - problem_definition
+  - model_identity
+  - assumptions
+  - equations_and_formula_meaning
+  - verified_results
+  - key_numbers_and_units
+  - canonical_figures
+  - citation_facts_and_keys
+  - labels_and_cross_references
+  - necessary_limitations
+  - core_negative_evidence
+
+forbidden_outputs:
+  - redesigned_model
+  - changed_computed_result
+  - invented_experiment
+  - invented_citation
+  - changed_submission_state
+  - independent_final_acceptance
+
+references:
+  on_demand:
+    - condition: general Chinese academic prose construction
+      path: references/prose-construction.md
+    - condition: defensive wording, caveats, scope, or uncertainty
+      path: references/anti-defensive-transformation.md
+    - condition: mechanical or AI-like sentence patterns
+      path: references/anti-ai-rewriting.md
+    - condition: paragraph order and claim-forward organization
+      path: references/paragraph-construction.md
+    - condition: thin modeling explanation or shallow argument
+      path: references/argument-deepening.md
+    - condition: result discussion, figures, tables, or tradeoffs
+      path: references/result-discussion-writing.md
+    - condition: abstract drafting or revision
+      path: references/abstract-writing.md
+    - condition: model assumptions, variables, equations, constraints, or solving prose
+      path: references/model-section-writing.md
+    - condition: contribution or innovation wording
+      path: references/contribution-writing.md
+    - condition: conclusion drafting or revision
+      path: references/conclusion-writing.md
+    - condition: editing an existing manuscript or creating an explicitly requested working draft
+      path: references/controlled-document-editing.md
+
+validation:
+  mutation_protector: scripts/validate_manuscript_mutation.py
+  template: templates/latex/working-draft/main.tex
+
+outputs:
+  - content_only_text
+  - section_draft
+  - authorized_manuscript_patch
+  - revision_summary
+  - unresolved_evidence_gaps

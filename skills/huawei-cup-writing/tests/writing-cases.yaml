@@ -1,0 +1,82 @@
+schema_version: 1
+status: SPECIFICATION_ONLY_PENDING_PHASE6_EXECUTION
+
+cases:
+  - id: normal_prose_polish
+    class: normal
+    task: polish_paragraph
+    rules: [PROSE-001, PROSE-003, PROSE-004]
+    required_outcomes: [clear_main_clause, evidence_kept]
+
+  - id: normal_abstract_rewrite
+    class: normal
+    task: rewrite_abstract
+    rules: [ABS-001, ABS-002, ABS-003]
+    required_outcomes: [question_method_result_mapping, body_numbers_only]
+
+  - id: normal_result_deepening
+    class: normal
+    task: deepen_result_discussion
+    rules: [DEPTH-002, FIG-005, CLAIM-002]
+    required_outcomes: [phenomenon, quantitative_evidence, explanation, task_meaning]
+
+  - id: normal_worklog_to_argument
+    class: normal
+    task: replace_worklog_narrative
+    rules: [AI-001, STRUCT-001]
+    required_outcomes: [final_reasoning_chain]
+
+  - id: normal_defensive_to_positive_scope
+    class: normal
+    task: transform_defensive_scope
+    rules: [ADW-001, ADW-003, ADW-006]
+    required_outcomes: [positive_scope, claim_first]
+
+  - id: resistance_technical_terms
+    class: resistance
+    task: preserve_technical_terms
+    rules: [TERM-001, TERM-004]
+    protected_content: [机制, 稳健优化, 耦合, 拓扑, 动态]
+
+  - id: resistance_necessary_limitation
+    class: resistance
+    task: preserve_real_limitation
+    rules: [ADW-002, ADW-005]
+    protected_content: [样本范围, 方法失效条件]
+
+  - id: resistance_real_uncertainty
+    class: resistance
+    task: preserve_evidence_calibrated_uncertainty
+    rules: [ADW-004, CLAIM-001]
+    protected_content: [未控制季节因素, 不作因果解释]
+
+  - id: resistance_negative_evidence
+    class: resistance
+    task: preserve_core_negative_result
+    rules: [CLAIM-006, DEPTH-005]
+    protected_content: [不占优指标, 真实权衡]
+
+  - id: mutation_key_number
+    class: mutation
+    task: reject_key_number_change
+    protected_kind: numbers
+
+  - id: mutation_formula
+    class: mutation
+    task: reject_formula_change
+    protected_kind: formulas
+
+  - id: mutation_citation_key
+    class: mutation
+    task: reject_citation_key_change
+    protected_kind: citations
+
+  - id: mutation_label_ref
+    class: mutation
+    task: reject_label_or_ref_change
+    protected_kind: labels_and_references
+
+  - id: mutation_master_source
+    class: mutation
+    task: reject_parallel_master_source
+    protected_kind: authoritative_source

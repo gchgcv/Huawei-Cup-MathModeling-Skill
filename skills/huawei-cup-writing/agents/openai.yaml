@@ -1,0 +1,7 @@
+interface:
+  display_name: "华为杯数学建模论文写作"
+  short_description: "基于冻结证据生成和修改中文数学建模论文"
+  default_prompt: "使用 $huawei-cup-writing 处理当前数学建模论文写作任务。默认只输出内容；只有我明确指定主稿并授权写回时才修改文件。保持模型、公式含义、关键数字、结果、引用和真实边界不变，不补造实验或结论。"
+
+policy:
+  allow_implicit_invocation: true
