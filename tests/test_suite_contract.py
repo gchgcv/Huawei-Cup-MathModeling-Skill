@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+import pytest
 import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -47,6 +48,18 @@ def test_current_suite_deployment_contract_passes() -> None:
         "status": "PASS",
         "suite_version": "1.0.0-rc1",
         "errors": [],
+    }
+
+
+def test_figure_manifest_contract_is_registered_and_versioned() -> None:
+    suite = yaml.safe_load(SUITE_MANIFEST.read_text(encoding="utf-8"))
+    shared = yaml.safe_load(
+        (REPO_ROOT / "shared" / "manifest.yaml").read_text(encoding="utf-8")
+    )
+    assert suite["shared"]["figure_manifest_contract_version"] == "1"
+    assert shared["contracts"]["figure_manifest"] == {
+        "version": "1",
+        "path": "contracts/figure-manifest.json",
     }
 
 
@@ -95,6 +108,39 @@ def test_components_are_suite_installed_but_independently_disableable() -> None:
     assert manifest["deployment_contract"]["component_single_directory_install"] == "forbidden"
     assert manifest["deployment_contract"]["component_enable_disable"] == "independent"
     assert all(item["can_disable"] is True for item in manifest["components"].values())
+
+
+def test_distribution_contains_the_installed_suite_validator() -> None:
+    manifest = yaml.safe_load(SUITE_MANIFEST.read_text(encoding="utf-8"))
+    assert "suite/validate_suite.py" in manifest["distribution"]["include"]
+
+
+def test_release_preconditions_reject_a_non_head_tag(monkeypatch: pytest.MonkeyPatch) -> None:
+    builder = _load_builder()
+
+    def fake_git(repo: Path, *args: str, text: bool = True) -> str:
+        assert text is True
+        if args == ("rev-parse", "HEAD"):
+            return "head-commit\n"
+        return ""
+
+    monkeypatch.setattr(builder, "_git", fake_git)
+    with pytest.raises(ValueError, match="tag must point to HEAD"):
+        builder._assert_release_preconditions(Path("."), "v-test", "tag-commit")
+
+
+def test_release_preconditions_reject_a_dirty_checkout(monkeypatch: pytest.MonkeyPatch) -> None:
+    builder = _load_builder()
+
+    def fake_git(repo: Path, *args: str, text: bool = True) -> str:
+        assert text is True
+        if args == ("rev-parse", "HEAD"):
+            return "tag-commit\n"
+        return " M paper.tex\n"
+
+    monkeypatch.setattr(builder, "_git", fake_git)
+    with pytest.raises(ValueError, match="checkout must be clean"):
+        builder._assert_release_preconditions(Path("."), "v-test", "tag-commit")
 
 
 def test_cli_reports_machine_readable_pass() -> None:

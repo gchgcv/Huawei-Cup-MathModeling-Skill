@@ -35,6 +35,7 @@ shared:
   project_facts_contract_version: "1"
   review_finding_contract_version: "1"
   paper_artifact_contract_version: "1"
+  figure_manifest_contract_version: "1"
 
 deployment_contract:
   authoritative_shared_root: shared
@@ -52,6 +53,7 @@ distribution:
     - compat
     - suite/manifest.yaml
     - suite/INSTALL.md
+    - suite/validate_suite.py
   exclude:
     - .git
     - .pytest_cache

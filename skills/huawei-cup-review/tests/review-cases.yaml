@@ -15,10 +15,31 @@ cases:
   - {id: depth_no_numeric_evidence, class: depth, expected: finding, rules: [DEPTH-002]}
   - {id: depth_no_explanation, class: depth, expected: finding, rules: [DEPTH-002]}
   - {id: depth_no_task_meaning, class: depth, expected: finding, rules: [DEPTH-002]}
+  - {id: depth_generic_model_description, class: depth, expected: finding, rules: [DEPTH-001]}
+  - {id: depth_uncontextualized_equation, class: depth, expected: finding, rules: [DEPTH-001]}
+  - {id: depth_undefined_model_responsibility, class: depth, expected: finding, rules: [DEPTH-001]}
+  - {id: depth_redundant_model_component, class: depth, expected: finding, rules: [DEPTH-001]}
+  - {id: depth_result_without_comparison, class: depth, expected: finding, rules: [DEPTH-002]}
+  - {id: depth_result_without_interpretation, class: depth, expected: finding, rules: [DEPTH-002]}
+  - {id: structure_result_not_closed_to_task, class: depth, expected: finding, rules: [STRUCT-004]}
+  - {id: claim_false_cross_question_linkage, class: claim_evidence, expected: finding, rules: [STRUCT-001]}
+  - {id: claim_untraceable_parameter, class: claim_evidence, expected: finding, rules: [DEPTH-001]}
+  - {id: claim_unsupported_model_praise, class: claim_evidence, expected: finding, rules: [PROSE-002]}
   - {id: claim_correlation_as_causation, class: claim_evidence, expected: finding, rules: [CLAIM-003]}
   - {id: claim_simulation_as_observation, class: claim_evidence, expected: finding, rules: [CLAIM-004]}
   - {id: claim_single_split_as_robust, class: claim_evidence, expected: finding, rules: [CLAIM-005]}
   - {id: claim_beyond_sample_scope, class: claim_evidence, expected: finding, rules: [CLAIM-001]}
+  - {id: defensive_unbounded_limitation, class: defensive, expected: finding, rules: [ADW-002]}
+  - {id: defensive_core_issue_softened, class: defensive, expected: finding, rules: [ADW-002]}
+  - {id: depth_unaligned_improvement, class: depth, expected: finding, rules: [DEPTH-005]}
+  - {id: claim_vague_generalization, class: claim_evidence, expected: finding, rules: [CLAIM-001]}
+  - {id: document_figure_without_argument_role, class: document, expected: finding, rules: [FIG-001]}
+  - {id: document_overloaded_figure, class: document, expected: finding, rules: [FIG-001]}
+  - {id: document_figure_without_reading_guidance, class: document, expected: finding, rules: [FIG-005]}
+  - {id: document_cross_section_result_mismatch, class: document, expected: finding, rules: [CLAIM-002]}
+  - {id: document_claim_evidence_discontinuity, class: document, expected: finding, rules: [CLAIM-002]}
+  - {id: document_abstract_body_mismatch, class: document, expected: finding, rules: [ABS-002]}
+  - {id: document_conclusion_evidence_mismatch, class: document, expected: finding, rules: [STRUCT-004]}
   - {id: document_abstract_body_number_mismatch, class: document, expected: finding, rules: [ABS-002, NUM-003]}
   - {id: document_duplicate_figure_label, class: document, expected: finding, rules: [FIG-003]}
   - {id: document_unreferenced_figure, class: document, expected: finding, rules: [FIG-003]}

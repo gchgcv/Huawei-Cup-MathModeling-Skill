@@ -44,6 +44,38 @@ def _manifest_at_tag(repo: Path, tag: str) -> dict[str, Any]:
     return value
 
 
+def _assert_release_preconditions(repo: Path, tag: str, commit: str) -> None:
+    """Require a clean checkout at the exact tag before packaging."""
+    head = _git(repo, "rev-parse", "HEAD")
+    assert isinstance(head, str)
+    if head.strip() != commit:
+        raise ValueError(
+            f"release tag must point to HEAD: tag={tag}, tag_commit={commit}, "
+            f"head={head.strip()}"
+        )
+
+    status = _git(repo, "status", "--porcelain=v1", "--untracked-files=all")
+    assert isinstance(status, str)
+    if status.strip():
+        raise ValueError("release checkout must be clean before packaging")
+
+    validator = repo / "suite" / "validate_suite.py"
+    manifest = repo / "suite" / "manifest.yaml"
+    if not validator.is_file() or not manifest.is_file():
+        raise ValueError("release checkout lacks the Suite validator or manifest")
+    result = subprocess.run(
+        [sys.executable, str(validator), str(manifest)],
+        cwd=repo,
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    if result.returncode != 0:
+        detail = (result.stdout + result.stderr).strip()
+        raise ValueError(f"Suite validation failed before packaging: {detail}")
+
+
 def _matches_exclusion(path: PurePosixPath, exclusions: Iterable[str]) -> bool:
     parts = path.parts
     for exclusion in exclusions:
@@ -87,6 +119,7 @@ def build_distribution(repo: Path, tag: str, output: Path) -> dict[str, object]:
     """Build one deterministic ZIP and SHA-256 sidecar from a tagged Git tree."""
     repo = repo.resolve()
     commit = _tag_commit(repo, tag)
+    _assert_release_preconditions(repo, tag, commit)
     manifest = _manifest_at_tag(repo, tag)
     distribution = manifest.get("distribution")
     suite = manifest.get("suite")

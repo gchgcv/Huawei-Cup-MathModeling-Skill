@@ -17,7 +17,7 @@ sha256: optional-64-hex-content-hash
 字段约束：
 
 - `artifact_id`：项目内稳定且唯一的 ID；跨文件引用使用该 ID，不使用模糊文件名。
-- `kind`：`problem`、`paper`、`pdf`、`code`、`result`、`figure`、`table`、`citation` 或 `context`。
+- `kind`：`problem`、`paper`、`pdf`、`code`、`result`、`figure`、`table`、`citation`、`context` 或 `project_facts`。
 - `path`：项目内可解析位置；路径存在本身不证明内容最新。
 - `authority`：`authoritative`、`derived` 或 `reference`。同一职责只能声明一个 authoritative artifact。
 - `sha256`：当判断 PDF、图形或结果是否与当前源一致时必须提供；未知时留空并报告 limitation，不得猜 hash。

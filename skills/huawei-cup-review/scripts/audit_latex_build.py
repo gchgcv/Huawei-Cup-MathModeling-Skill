@@ -7,20 +7,20 @@ import sys
 from pathlib import Path
 
 ERROR_PATTERNS = [
-    (re.compile(r"^! LaTeX Error:", re.M), "LaTeX Error"),
-    (re.compile(r"Too many unprocessed floats", re.I), "too many unprocessed floats"),
-    (re.compile(r"Float\(s\) lost", re.I), "lost float"),
-    (re.compile(r"Float too large for page", re.I), "float too large"),
+    (re.compile(r"^! LaTeX Error:", re.MULTILINE), "LaTeX Error"),
+    (re.compile(r"Too many unprocessed floats", re.IGNORECASE), "too many unprocessed floats"),
+    (re.compile(r"Float\(s\) lost", re.IGNORECASE), "lost float"),
+    (re.compile(r"Float too large for page", re.IGNORECASE), "float too large"),
 ]
 
 WARNING_PATTERNS = [
     (re.compile(r"Overfull \\hbox"), "overfull hbox"),
     (re.compile(r"Overfull \\vbox"), "overfull vbox"),
-    (re.compile(r"undefined references", re.I), "undefined references"),
-    (re.compile(r"Citation .* undefined", re.I), "undefined citation"),
-    (re.compile(r"Reference .* undefined", re.I), "undefined reference"),
-    (re.compile(r"Rerun to get cross-references right", re.I), "cross references need rerun"),
-    (re.compile(r"Label\(s\) may have changed", re.I), "labels changed; rerun required"),
+    (re.compile(r"undefined references", re.IGNORECASE), "undefined references"),
+    (re.compile(r"Citation .* undefined", re.IGNORECASE), "undefined citation"),
+    (re.compile(r"Reference .* undefined", re.IGNORECASE), "undefined reference"),
+    (re.compile(r"Rerun to get cross-references right", re.IGNORECASE), "cross references need rerun"),
+    (re.compile(r"Label\(s\) may have changed", re.IGNORECASE), "labels changed; rerun required"),
 ]
 
 FLOAT_RE = re.compile(r"\\begin\{(?:figure|table)\}(?:\[([^\]]*)\])?")

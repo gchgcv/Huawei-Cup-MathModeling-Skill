@@ -1,13 +1,15 @@
 # Shared Contracts
 
-Contract versions in Suite `1.0.0-rc1`: Project Facts `1`, Review Finding `1`, and
-Paper Artifact `1`. Review's call-result envelope remains component-owned v2.
+Contract versions in Suite `1.0.0-rc1`: Project Facts `1`, Review Finding `1`,
+Paper Artifact `1`, and Figure Manifest `1`. Review's call-result envelope remains
+component-owned v2.
 
 本目录定义 Writing、Review 与后续建模/编码能力之间共享的数据形状，不是可调用 Skill，也不拥有 workflow、severity policy 或 submission state。
 
 ## Contract inventory
 
 - `paper-artifact-contract.md`：artifact 身份、权威性和可追溯性边界。
+- `figure-manifest.json`：canonical 正式图产物集合的结构定义；产出层维护，Writing 与 Review 只读使用。
 - `project-facts.schema.json`：最小 Project Facts v1 schema。
 - `review-finding.schema.json`：Review finding 的共享结构；P0/P1/P2 的解释仍由 Review policy 定义。
 - `validate_project_facts.py`：只读 schema、ID 和引用完整性校验器。

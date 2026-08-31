@@ -37,4 +37,4 @@ Rule ID 一旦进入测试或 Benchmark，不得在没有兼容映射的情况�
 
 ## Provenance
 
-规则仅从冻结的 `legacy/huawei-cup-modeling-writing-v0.9.1` 中已有要求提取。历史文件继续作为回归基线，本目录不反向修改 Legacy。
+Rule ID 和基础规范从冻结的 `legacy/huawei-cup-modeling-writing-v0.9.1` 中已有要求提取。当前工作树可以根据用户提供的写作审核建议，对既有 Rule 的语义进行兼容性增补；这类增补不创建新的 Rule ID 命名空间，需在发布记录中保留其来源。历史文件继续作为回归基线，本目录不反向修改 Legacy。

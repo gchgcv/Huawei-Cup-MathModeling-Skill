@@ -1,0 +1,12 @@
+{
+  "figure_root": "outputs/figures",
+  "canonical": [
+    {
+      "id": "fig:q1-example",
+      "file": "01_q1_example.png",
+      "source": "src/plot_q1.py"
+    }
+  ],
+  "allowed_files": [],
+  "trash_dir": "outputs/figures/.trash"
+}

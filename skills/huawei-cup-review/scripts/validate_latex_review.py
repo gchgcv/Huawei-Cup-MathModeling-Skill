@@ -11,6 +11,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+try:
+    import fitz
+except ImportError:  # pragma: no cover - exercised only without optional dependency
+    fitz = None
+
 ALLOWED_SCOPE = {"affected", "full"}
 ALLOWED_STATUS = {"UNVERIFIED", "PASS"}
 
@@ -24,13 +29,20 @@ def sha256(path: Path) -> str:
 
 
 def pdf_page_count(path: Path) -> int | None:
+    if fitz is not None:
+        try:
+            with fitz.open(str(path)) as document:
+                return document.page_count
+        except (OSError, RuntimeError, ValueError):
+            pass
+
     exe = shutil.which("pdfinfo")
     if not exe:
         return None
     proc = subprocess.run([exe, str(path)], text=True, capture_output=True, check=False)
     if proc.returncode != 0:
         return None
-    m = re.search(r"^Pages:\s+(\d+)\s*$", proc.stdout, re.M)
+    m = re.search(r"^Pages:\s+(\d+)\s*$", proc.stdout, re.MULTILINE)
     return int(m.group(1)) if m else None
 
 
@@ -82,7 +94,7 @@ def main() -> int:
         declared_pages = 0
     actual_pages = pdf_page_count(pdf)
     if actual_pages is None:
-        msg = "cannot independently read PDF page count (pdfinfo unavailable or failed)"
+        msg = "cannot independently read PDF page count (PyMuPDF and pdfinfo unavailable or failed)"
         (errors if args.strict else warnings).append(msg)
     elif declared_pages and actual_pages != declared_pages:
         errors.append(f"page_count mismatch: review={declared_pages}, pdf={actual_pages}")

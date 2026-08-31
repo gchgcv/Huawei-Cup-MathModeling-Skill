@@ -14,6 +14,14 @@ cases:
     rules: [PROSE-003, PROSE-004]
     required_outcomes: [one_primary_judgment_per_sentence, logical_sentence_sequence]
 
+  - id: normal_voice_naturalization
+    class: normal
+    task: naturalize_unnecessary_passive_voice
+    rules: [PROSE-003, PROSE-006]
+    input_text: '该方法被用来优化锚链质量。'
+    undesirable_patterns: ['被用来']
+    required_outcomes: [active_or_zero_subject_voice, meaning_preserved]
+
   - id: normal_abstract_rewrite
     class: normal
     task: rewrite_abstract
@@ -26,6 +34,48 @@ cases:
     rules: [DEPTH-002, FIG-005, CLAIM-002]
     required_outcomes: [phenomenon, quantitative_evidence, explanation, task_meaning]
 
+  - id: normal_model_tailoring
+    class: normal
+    task: map_problem_features_to_model_relations
+    rules: [DEPTH-001]
+    required_outcomes: [problem_feature, model_element, reason_for_fit]
+
+  - id: normal_cross_question_linkage
+    class: normal
+    task: explain_actual_cross_question_dependency
+    rules: [STRUCT-001, DEPTH-001]
+    required_outcomes: [upstream_output, downstream_use, no_false_linkage]
+
+  - id: normal_parameter_provenance
+    class: normal
+    task: document_key_parameter_provenance
+    rules: [DEPTH-001, NUM-001]
+    required_outcomes: [value, unit, source_or_derivation, model_role]
+
+  - id: normal_equation_context
+    class: normal
+    task: place_equation_in_model_context
+    rules: [DEPTH-001]
+    required_outcomes: [equation_purpose, symbol_meaning, output_meaning]
+
+  - id: normal_evidence_based_model_evaluation
+    class: normal
+    task: calibrate_model_evaluation
+    rules: [PROSE-002, CLAIM-002]
+    required_outcomes: [design, evaluation_target, evidence, bounded_claim]
+
+  - id: normal_bounded_limitation_and_alignment
+    class: normal
+    task: align_limitation_with_future_improvement
+    rules: [ADW-002, DEPTH-005, CLAIM-001]
+    required_outcomes: [observed_limitation, impact, matched_improvement, scope]
+
+  - id: normal_concrete_generalization
+    class: normal
+    task: state_concrete_generalization_boundary
+    rules: [CLAIM-001, ADW-003]
+    required_outcomes: [applicable_object, conditions, validation_level, non_generalizable_scope]
+
   - id: normal_worklog_to_argument
     class: normal
     task: replace_worklog_narrative
@@ -37,6 +87,46 @@ cases:
     task: transform_defensive_scope
     rules: [ADW-001, ADW-003, ADW-006]
     required_outcomes: [positive_scope, claim_first]
+
+  - id: normal_review_language_isolation
+    class: normal
+    task: separate_review_diagnosis_from_final_prose
+    rules: [ADW-001, ADW-003, PROSE-001]
+    input_text: '现有证据不足以支持该模型适用于所有城市。'
+    undesirable_patterns: ['现有证据不足以支持']
+    required_outcomes: [positive_scope, evidence_boundary_kept, no_review_metadiscourse]
+
+  - id: normal_mechanical_label_chain_rewrite
+    class: normal
+    task: replace_compressed_label_chain_with_real_interface
+    rules: [AI-005, PROSE-003, STRUCT-001]
+    input_text: '本文构建了“候选点评价—布局优化—扰动分析”的研究框架。'
+    undesirable_patterns: ['构建了“候选点评价—布局优化—扰动分析”的研究框架']
+    required_outcomes: [explicit_input_output_relation, no_mechanical_label_chain]
+
+  - id: normal_agent_meta_prose
+    class: normal
+    task: remove_answer_organization_meta_prose
+    rules: [PROSE-001, PROSE-004, AI-002]
+    input_text: '因此需要分别明确三个问题的关系，下面分别进行讨论。'
+    undesirable_patterns: ['因此需要分别明确', '下面分别进行讨论']
+    required_outcomes: [direct_problem_relation, no_unprovided_motivation]
+
+  - id: normal_positive_independent_interfaces
+    class: normal
+    task: rewrite_negative_interface_audit
+    rules: [AI-002, PROSE-001, STRUCT-001]
+    input_text: '问题三不使用问题一结果，也不调用问题二结果，不为问题二提供参数。'
+    undesirable_patterns: ['不使用问题一结果', '不调用问题二结果', '不为问题二提供参数']
+    required_outcomes: [positive_input_output_relation, independent_purpose]
+
+  - id: normal_pending_solve_to_objective
+    class: normal
+    task: replace_pending_solve_status
+    rules: [AI-001, PROSE-001, STRUCT-001]
+    input_text: '当前尚未完成实际求解，最终启用集合仍待计算。'
+    undesirable_patterns: ['尚未完成实际求解', '仍待计算']
+    required_outcomes: [pending_model_output, no_work_status_meta_prose]
 
   - id: normal_paragraph_final_negative_scope
     class: normal

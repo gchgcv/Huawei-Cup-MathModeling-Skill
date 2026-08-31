@@ -13,7 +13,6 @@ from typing import Any
 from jsonschema import Draft202012Validator
 from referencing import Registry, Resource
 
-
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = SKILL_ROOT / "schemas" / "review-result.schema.json"
 SHARED_ROOT = SKILL_ROOT.parents[1] / "shared" / "paper-quality-standard"

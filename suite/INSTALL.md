@@ -16,10 +16,12 @@ Shared rules into another component.
 - Project Facts Contract: `shared/contracts/project-facts.schema.json`, version `1`.
 - Review Finding Contract: `shared/contracts/review-finding.schema.json`, version `1`.
 - Paper Artifact Contract: `shared/contracts/paper-artifact-contract.md`, version `1`.
+- Figure Manifest Contract: `shared/contracts/figure-manifest.json`, version `1`.
 
-Run `python suite/validate_suite.py` after installation. Missing Shared files, paths that
-escape the Suite root, component-version drift, or incompatible Shared versions return
-`BLOCKED`. The validator never falls back to copied or Legacy rules.
+Run `python suite/validate_suite.py` after installation. The validator is included in the
+Suite package. Missing Shared files, paths that escape the Suite root, component-version
+drift, or incompatible Shared versions return `BLOCKED`. The validator never falls back
+to copied or Legacy rules.
 
 The compatibility router is optional and disabled by default. Enable it only when the
 old `huawei-cup-modeling` entry name must route paper/audit requests to the modular

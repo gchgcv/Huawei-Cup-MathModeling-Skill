@@ -245,7 +245,7 @@ def _load(path: Path) -> Mapping[str, Any]:
     text = path.read_text(encoding="utf-8")
     value = yaml.safe_load(text) if path.suffix.lower() in {".yaml", ".yml"} else json.loads(text)
     if not isinstance(value, Mapping):
-        raise ValueError("Legacy ledger root must be an object")
+        raise TypeError("Legacy ledger root must be an object")
     return value
 
 

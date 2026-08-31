@@ -17,6 +17,11 @@
 - `integration/`：Writing→Review 的 hash、只读性、Rule ID 与 handoff 检查。
 - `tests/`：evaluator unit、fault 和 resistance tests。
 
+Writing catalog 的 `evidence_mode` 与论文 Skill 的交付模式分离。本阶段案例属于
+`frozen-rewrite`：默认只允许保留和重组输入事实，新增派生数字必须由案例的
+`allowed_added_numbers` 显式声明。该测试契约不限制 `evidence-backed-analysis` 或
+`modeling-or-computation` 任务中基于可追溯数据生成结果。
+
 ## Candidate result ownership
 
 Benchmark evaluator 不生成 Writer/Reviewer 内容。真实输出必须由被测系统独立产生，再以 JSON 放入调用方指定的 result directory。Evaluator 只读取 catalog/result，向 stdout 返回 JSON，不写 benchmark report。

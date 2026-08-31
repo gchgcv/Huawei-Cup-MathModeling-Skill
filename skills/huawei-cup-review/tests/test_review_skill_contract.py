@@ -90,7 +90,26 @@ def test_manifest_paths_are_real_and_boundary_is_exact() -> None:
     paths.extend(manifest["schemas"].values())
     paths.extend(item["path"] for item in manifest["references"]["on_demand"])
     paths.extend(manifest["checks"].values())
+    paths.extend(manifest["templates"].values())
     assert all((SKILL_ROOT / path).resolve().exists() for path in paths)
+
+
+def test_review_registers_shared_figure_manifest_and_latex_template() -> None:
+    manifest = yaml.safe_load((SKILL_ROOT / "manifest.yaml").read_text(encoding="utf-8"))
+    assert manifest["shared_contracts"]["figure_manifest"] == "../../shared/contracts/figure-manifest.json"
+    assert manifest["templates"]["latex_review"] == "templates/latex-review.json"
+
+
+def test_request_artifact_kinds_cover_shared_problem_and_project_facts() -> None:
+    schema = json.loads(
+        (SKILL_ROOT / "schemas" / "review-request.schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    kinds = schema["properties"]["artifacts"]["items"]["properties"]["kind"][
+        "enum"
+    ]
+    assert {"problem", "project_facts"} <= set(kinds)
 
 
 def test_project_facts_access_is_read_only() -> None:
@@ -205,6 +224,86 @@ def test_references_use_shared_rule_ids_without_copying_normative_statements() -
     assert "Normative Statement" not in references
 
 
+def test_semantic_policy_registers_eight_extension_checks() -> None:
+    text = (SKILL_ROOT / "references" / "semantic-review-policy.md").read_text(
+        encoding="utf-8"
+    )
+    categories = (
+        "generic_model_description",
+        "false_cross_question_linkage",
+        "untraceable_parameter",
+        "uncontextualized_equation",
+        "unsupported_model_praise",
+        "unbounded_limitation",
+        "fatal_issue_disguised_as_limitation",
+        "unaligned_improvement",
+        "vague_generalization",
+    )
+    for category in categories:
+        assert f"`{category}`" in text
+    for rule_id in (
+        "DEPTH-001",
+        "STRUCT-001",
+        "PROSE-002",
+        "ADW-002",
+        "DEPTH-005",
+        "CLAIM-001",
+    ):
+        assert f"`{rule_id}`" in text
+    assert "正式 finding 的 `rule_id`" in text
+    assert "核心有效性问题" in text
+
+
+def test_semantic_policy_registers_second_batch_coherence_checks() -> None:
+    text = (SKILL_ROOT / "references" / "semantic-review-policy.md").read_text(
+        encoding="utf-8"
+    )
+    categories = (
+        "undefined_model_responsibility",
+        "redundant_model_component",
+        "result_without_comparison",
+        "result_without_interpretation",
+        "result_not_closed_to_task",
+        "figure_without_argument_role",
+        "overloaded_figure",
+        "figure_without_reading_guidance",
+        "cross_section_result_mismatch",
+        "claim_evidence_discontinuity",
+        "abstract_body_mismatch",
+        "conclusion_evidence_mismatch",
+    )
+    for category in categories:
+        assert f"`{category}`" in text
+    for rule_id in (
+        "DEPTH-001",
+        "DEPTH-002",
+        "STRUCT-004",
+        "FIG-001",
+        "FIG-005",
+        "CLAIM-002",
+        "NUM-003",
+        "ABS-002",
+    ):
+        assert f"`{rule_id}`" in text
+    assert "没有自然对照时不得强行形成该 finding" in text
+    assert "finding 只选择一个最直接的主 Rule ID" in text
+
+
+def test_document_review_registers_figure_role_and_evidence_continuity() -> None:
+    document = (SKILL_ROOT / "references" / "document-quality-review.md").read_text(
+        encoding="utf-8"
+    )
+    project_facts = (SKILL_ROOT / "references" / "project-facts-review.md").read_text(
+        encoding="utf-8"
+    )
+    assert "图表论证职责" in document
+    assert "Evidence Continuity Review" in document
+    for rule_id in ("FIG-001", "FIG-005", "NUM-003", "CLAIM-002", "ABS-002"):
+        assert f"`{rule_id}`" in document
+    assert "沿模型、结果、图表、正文、摘要和结论连续追溯" in project_facts
+    assert "不得从模块名称反推责任" in project_facts
+
+
 def test_runtime_has_no_legacy_external_or_mutation_dependency() -> None:
     forbidden_paths = ("legacy/", "external-layer", "quality_evidence_writer")
     forbidden_actions = ("write_text(", "write_bytes(", "unlink(", "rename(", "shutil.move", "--apply", "apply-trash")
@@ -269,6 +368,36 @@ See Figure~\\ref{fig:comparison}.
 
     assert result.returncode == 0, result.stdout + result.stderr
     assert "FIGURES_SCANNED: 1" in result.stdout
+    assert "FIGURE_REFERENCE_AUDIT: 0 warning(s)" in result.stdout
+
+
+def test_figure_auditor_resolves_graphicspath(tmp_path: Path) -> None:
+    figure_dir = tmp_path / "figures"
+    figure_dir.mkdir()
+    (figure_dir / "plot.pdf").write_bytes(b"%PDF-placeholder")
+    tex = tmp_path / "main.tex"
+    tex.write_text(
+        r"""\graphicspath{{figures/}}
+\begin{figure}
+\includegraphics{plot.pdf}
+\caption{Result}
+\label{fig:result}
+\end{figure}
+See Figure~\ref{fig:result}.
+""",
+        encoding="utf-8",
+    )
+
+    result = subprocess.run(
+        [sys.executable, str(FIGURE_AUDITOR), str(tex), "--strict"],
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "graphic not found" not in result.stdout
     assert "FIGURE_REFERENCE_AUDIT: 0 warning(s)" in result.stdout
 
 

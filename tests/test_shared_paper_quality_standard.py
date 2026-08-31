@@ -3,7 +3,6 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 STANDARD_ROOT = REPO_ROOT / "shared" / "paper-quality-standard"
 RULE_HEADER = re.compile(r"^## ([A-Z]+-\d{3}) — .+$", re.MULTILINE)
@@ -58,6 +57,46 @@ def test_registry_and_expected_standard_files_exist() -> None:
     assert (STANDARD_ROOT / "README.md").is_file()
     actual = {path.name for path in _rule_files() if path.name != "README.md"}
     assert actual == set(EXPECTED_PREFIXES)
+
+
+def test_figure_standard_includes_language_context_rule() -> None:
+    text = (STANDARD_ROOT / "figure-table-standard.md").read_text(encoding="utf-8")
+    assert "## FIG-008 — 图表语言与论文语境一致" in text
+    assert "主要坐标轴名称、图例、方案或类别名称" in text
+    assert "可以保留标准形式" in text
+
+
+def test_shared_rules_cover_model_context_linkage_and_bounded_scope() -> None:
+    depth = (STANDARD_ROOT / "argument-depth.md").read_text(encoding="utf-8")
+    structure = (STANDARD_ROOT / "section-structure.md").read_text(encoding="utf-8")
+    claims = (STANDARD_ROOT / "claim-evidence.md").read_text(encoding="utf-8")
+    defensive = (STANDARD_ROOT / "anti-defensive-writing.md").read_text(
+        encoding="utf-8"
+    )
+
+    for phrase in (
+        "题目特征",
+        "关键公式",
+        "关键参数",
+        "数值、单位、来源",
+        "责任、输入输出",
+    ):
+        assert phrase in depth
+    for phrase in ("自然对照", "题目要求的输出", "决策含义"):
+        assert phrase in depth
+    assert "实际传递的变量、参数、结果、约束或模型输出" in structure
+    assert "现实、工程、物理或决策含义" in structure
+    for phrase in ("适用对象", "必要条件", "验证层级", "不能外推"):
+        assert phrase in claims
+    assert "摘要和结论" in claims
+    assert "破坏模型、数据或证据成立基础" in defensive
+
+
+def test_shared_figure_rules_cover_responsibility_and_reading_guidance() -> None:
+    text = (STANDARD_ROOT / "figure-table-standard.md").read_text(encoding="utf-8")
+    assert "主要论证职责" in text
+    assert "读图顺序" in text
+    assert "重点区域" in text
 
 
 def test_rule_ids_are_unique_and_match_file_prefixes() -> None:

@@ -10,6 +10,8 @@ from pathlib import Path
 FIGURE_RE = re.compile(r"\\begin\{figure\*?\}(.*?)\\end\{figure\*?\}", re.DOTALL)
 SUBFIGURE_RE = re.compile(r"\\begin\{subfigure\}(.*?)\\end\{subfigure\}", re.DOTALL)
 GRAPHIC_RE = re.compile(r"\\includegraphics(?:\[[^\]]*\])?\{([^}]+)\}")
+GRAPHICSPATH_RE = re.compile(r"\\graphicspath\s*\{((?:\{[^{}]*\}\s*)+)\}")
+GRAPHICSPATH_ENTRY_RE = re.compile(r"\{([^{}]*)\}")
 CAPTION_RE = re.compile(r"\\caption\{([^}]*)\}", re.DOTALL)
 LABEL_RE = re.compile(r"\\label\{([^}]+)\}")
 REF_RE = re.compile(r"\\(?:ref|autoref|cref)\{([^}]+)\}")
@@ -57,12 +59,39 @@ def resolve_tex_sources(master: Path) -> tuple[list[Path], list[str]]:
     return ordered, missing
 
 
-def graphic_exists(source: Path, target: str) -> bool:
-    """Check an explicit or extensionless graphic path relative to its source."""
-    candidate = (source.parent / target).resolve()
-    if candidate.suffix:
-        return candidate.is_file()
-    return any(candidate.with_suffix(extension).is_file() for extension in GRAPHIC_EXTENSIONS)
+def graphic_exists(
+    source: Path, target: str, graphic_roots: list[Path]
+) -> bool:
+    """Check a graphic beside its source or under a declared graphicspath."""
+    candidates = [(source.parent / target).resolve()]
+    candidates.extend((root / target).resolve() for root in graphic_roots)
+    for candidate in candidates:
+        if candidate.suffix:
+            if candidate.is_file():
+                return True
+        elif any(
+            candidate.with_suffix(extension).is_file()
+            for extension in GRAPHIC_EXTENSIONS
+        ):
+            return True
+    return False
+
+
+def resolve_graphic_roots(sources: list[Path]) -> list[Path]:
+    """Resolve graphicspath entries declared by the scanned TeX sources."""
+    roots: list[Path] = []
+    seen: set[Path] = set()
+    for source in sources:
+        text = strip_comments(source.read_text(encoding="utf-8", errors="replace"))
+        for group in GRAPHICSPATH_RE.findall(text):
+            for relative in GRAPHICSPATH_ENTRY_RE.findall(group):
+                if not relative.strip():
+                    continue
+                root = (source.parent / relative.strip()).resolve()
+                if root not in seen:
+                    roots.append(root)
+                    seen.add(root)
+    return roots
 
 
 def main() -> int:
@@ -80,6 +109,7 @@ def main() -> int:
     reference_required_labels: list[str] = []
     references: set[str] = set()
     figure_count = 0
+    graphic_roots = resolve_graphic_roots(sources)
 
     for source in sources:
         text = strip_comments(source.read_text(encoding="utf-8", errors="replace"))
@@ -94,7 +124,7 @@ def main() -> int:
             if not graphics:
                 warnings.append(f"{source}: figure {figure_count} has no includegraphics")
             for target in graphics:
-                if not graphic_exists(source, target):
+                if not graphic_exists(source, target, graphic_roots):
                     warnings.append(f"{source}: graphic not found: {target}")
             if len(captions) != 1 or not captions[0].strip():
                 warnings.append(f"{source}: figure {figure_count} must have one non-empty caption")

@@ -12,6 +12,7 @@ suite_compatibility:
   project_facts_contract_version: "1"
   review_finding_contract_version: "1"
   paper_artifact_contract_version: "1"
+  figure_manifest_contract_version: "1"
   missing_or_incompatible: BLOCKED
   copied_rule_fallback: false
 
@@ -45,6 +46,7 @@ shared_contracts:
   registry: ../../shared/contracts/README.md
   project_facts: ../../shared/contracts/project-facts.schema.json
   artifact_contract: ../../shared/contracts/paper-artifact-contract.md
+  figure_manifest: ../../shared/contracts/figure-manifest.json
   finding: ../../shared/contracts/review-finding.schema.json
   project_facts_validator: ../../shared/contracts/validate_project_facts.py
 
@@ -72,3 +74,7 @@ checks:
   pdf_evidence: scripts/validate_latex_review.py
   docx_math: scripts/verify_docx_math.py
   figure_references: scripts/audit_figure_references.py
+  canonical_figure_outputs: scripts/audit_canonical_figure_outputs.py
+
+templates:
+  latex_review: templates/latex-review.json

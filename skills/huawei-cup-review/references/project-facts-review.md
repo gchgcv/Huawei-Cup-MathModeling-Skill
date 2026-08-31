@@ -13,4 +13,6 @@ Review 只读消费 `../../shared/contracts/project-facts.schema.json`，不更�
 
 - 论文 claim 与 `claims`、`results`、`model`、`figures` 不一致时，finding 同时定位论文和 Project Facts source。
 - `evidence_ids` 悬空、source 不可解析或关键数字冲突属于契约/一致性问题，但 Review 仍保持只读。
+- 核心 claim 需要沿模型、结果、图表、正文、摘要和结论连续追溯；`source_ids` 存在不等于论文已经完成解释，仍需核对各材料中的对象、指标定义、单位、排序和结论强度。
+- Project Facts 未记录模型模块的输入、输出或接口时，不得从模块名称反推责任；应将责任说明列为证据缺口，除非代码映射或其他一手材料已经提供对应证据。
 - Project Facts 未覆盖的检查范围写入顶层 `limitations`，不猜 canonical value。

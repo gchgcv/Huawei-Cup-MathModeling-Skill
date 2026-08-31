@@ -61,6 +61,18 @@ def test_manifest_paths_and_shared_registry_are_real() -> None:
         assert (SKILL_ROOT / value).resolve().exists(), value
 
 
+def test_content_only_output_hides_validation_metadata_by_default() -> None:
+    manifest = yaml.safe_load(
+        (SKILL_ROOT / "manifest.yaml").read_text(encoding="utf-8")
+    )
+    policy = manifest["output_policy"]
+    assert policy["content-only"]["user_visible"] == ["content_only_text"]
+    assert policy["content-only"]["validation_metadata"] == "internal_unless_requested"
+    assert (
+        "fidelity_validation" in policy["revision_or_authorized_write"]["user_visible"]
+    )
+
+
 def test_existing_text_revision_requires_fidelity_lock() -> None:
     skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
     reference = (
@@ -69,12 +81,34 @@ def test_existing_text_revision_requires_fidelity_lock() -> None:
     prompt = (SKILL_ROOT / "agents" / "openai.yaml").read_text(encoding="utf-8")
     assert "fidelity-and-derived-values.md" in skill
     assert "完整 LaTeX token" in skill
-    assert "默认禁止新增派生数字" in skill
+    assert "frozen-rewrite" in skill
+    assert "evidence-backed-analysis" in skill
+    assert "modeling-or-computation" in skill
     assert "\\ref{fig:result}" in reference
     assert "declared_derived_values" in reference
     assert "--before-text" in reference
     assert "validator 未 PASS 时不得返回" in skill
-    assert "可复算不等于获准写入" in prompt
+    assert "可复算不等于自动获准写入" in prompt
+
+
+def test_derived_value_policy_is_scoped_to_evidence_mode() -> None:
+    manifest = yaml.safe_load(
+        (SKILL_ROOT / "manifest.yaml").read_text(encoding="utf-8")
+    )
+    modes = manifest["evidence_modes"]
+    assert modes["frozen-rewrite"]["derived_values"] == "forbidden_by_default"
+    assert modes["evidence-backed-analysis"]["derived_values"] == (
+        "allowed_with_provenance_and_verification"
+    )
+    assert modes["modeling-or-computation"]["derived_values"] == (
+        "generated_outputs_require_input_and_verification_record"
+    )
+    reference = (
+        SKILL_ROOT / "references" / "fidelity-and-derived-values.md"
+    ).read_text(encoding="utf-8")
+    assert "交付模式" in reference
+    assert "不要把该模式的限制推广到实际建模和结果分析任务" in reference
+    assert "纯改写" in reference and "建模求解" in reference
 
 
 def test_writing_skill_has_no_legacy_runtime_dependency() -> None:
@@ -141,6 +175,80 @@ def test_writing_references_use_existing_rule_ids_without_copying_rules() -> Non
     assert set(RULE_ID.findall(reference_text)) <= known_ids
     assert all(statement not in reference_text for statement in statements)
     assert "Normative Statement" not in reference_text
+
+
+def test_contribution_reference_preserves_three_levels_and_claim_boundaries() -> None:
+    text = (SKILL_ROOT / "references" / "contribution-writing.md").read_text(
+        encoding="utf-8"
+    )
+    for phrase in ("建模特色", "方法改进", "模型创新", "具体变化", "新结构或新机制"):
+        assert phrase in text
+    for phrase in ("首次", "完全解决", "普适", "显著优于所有方法"):
+        assert phrase in text
+    assert "默认不使用" in text
+
+
+def test_writing_references_cover_context_evaluation_and_scope() -> None:
+    model = (SKILL_ROOT / "references" / "model-section-writing.md").read_text(
+        encoding="utf-8"
+    )
+    result = (SKILL_ROOT / "references" / "result-discussion-writing.md").read_text(
+        encoding="utf-8"
+    )
+    contribution = (SKILL_ROOT / "references" / "contribution-writing.md").read_text(
+        encoding="utf-8"
+    )
+    conclusion = (SKILL_ROOT / "references" / "conclusion-writing.md").read_text(
+        encoding="utf-8"
+    )
+    defensive = (
+        SKILL_ROOT / "references" / "anti-defensive-transformation.md"
+    ).read_text(encoding="utf-8")
+    facts = (SKILL_ROOT / "references" / "project-facts-consumption.md").read_text(
+        encoding="utf-8"
+    )
+
+    for phrase in ("模型定制性", "跨问承接", "参数溯源", "公式语境"):
+        assert phrase in model
+    for phrase in ("Model responsibility checks", "输入", "输出", "前后模块"):
+        assert phrase in model
+    for phrase in ("评价链", "局限边界", "改进对应"):
+        assert phrase in result
+    for phrase in (
+        "Result narrative slots",
+        "Application closure",
+        "Figure responsibility and reading",
+        "Evidence continuity",
+    ):
+        assert phrase in result
+    for phrase in ("适用对象", "关键条件或参数范围", "对应的局限"):
+        assert phrase in contribution or phrase in conclusion
+    for phrase in ("最终输出", "现实、工程、物理或决策含义", "结果来源"):
+        assert phrase in conclusion or phrase in result
+    assert "核心有效性问题" in defensive
+    assert "source_ids" in facts and "跨问题承接" in facts
+
+
+def test_prose_rewrite_corpus_has_scopes_patterns_and_positive_examples() -> None:
+    corpus = (SKILL_ROOT / "references" / "prose-blacklist.md").read_text(
+        encoding="utf-8"
+    )
+    for phrase in (
+        "HARD_REWRITE",
+        "PATTERN_REWRITE",
+        "SOFT_TRIGGER",
+        "writing_final_prose",
+        "review_report",
+        "机械标签链",
+        "Agent meta-prose",
+        "接口审计化",
+        "正向适用范围",
+        "不自动替换",
+    ):
+        assert phrase in corpus
+    assert "不能据此证明模型具有良好泛化能力" in corpus
+    assert "当前结果反映模型在本数据集及当前测试划分下" in corpus
+    assert "流程图节点" in corpus
 
 
 def test_mutation_protector_accepts_prose_only_rewrite(tmp_path: Path) -> None:

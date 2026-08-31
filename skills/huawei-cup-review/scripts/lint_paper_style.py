@@ -17,7 +17,7 @@ from xml.etree import ElementTree as ET
 
 HIGH_RISK_PHRASES = [
     "毋庸置疑", "不言而喻", "显而易见", "不难发现",
-    "值得注意的是", "需要指出的是", "必须强调的是",
+    "值得注意的是", "必须强调的是",
     "深刻揭示", "深刻体现", "切中要害", "不可磨灭的贡献",
     "范式转移", "颠覆性", "革命性", "里程碑式",
     "全面赋能", "有效赋能", "协同增效", "耦合内聚", "形成闭环",
@@ -38,8 +38,81 @@ COLON_TEMPLATES = [
 
 SOFT_RISK_PHRASES = [
     "由此可见", "综上所述", "基于上述分析", "在这一背景下",
-    "从某种意义上说", "深刻", "本质上", "先进",
+    "从某种意义上说", "从结果可以看出", "由图可知", "可以发现",
+    "综上可见", "由此可以看出", "由上述分析可知", "综合来看",
+    "因此需要分别明确", "下文将重点分析", "为了更好地解决上述问题",
+    "为后续分析奠定基础", "下面分别进行讨论", "从上述分析可以发现",
+    "深刻", "本质上", "先进",
 ]
+
+# These phrases are useful in a review finding but often sound like the
+# writer is auditing their own claim in final manuscript prose. They remain
+# warnings only; a real limitation or negative result must not be removed.
+REVIEW_LANGUAGE_PHRASES = (
+    "需要指出的是", "值得指出的是", "必须说明的是", "不能据此证明", "不能据此说明",
+    "不能据此认为", "不能据此宣称", "不能据此", "现有证据不足以支持",
+    "现有结果仅支持", "尚不能说明", "尚不足以证明", "不能外推为",
+    "不能扩展为", "不能简单认为",
+)
+
+REVIEW_LANGUAGE_REGEXES = (
+    re.compile(r"不应将[^，；。！？!?]{0,24}(?:解释为|理解为|视为|认为)"),
+    re.compile(r"支持将[^，；。！？!?]{0,24}表述为"),
+)
+
+INTERFACE_NEGATION_RE = re.compile(r"不(?:使用|调用|依赖|提供|作为|进入|参与)")
+PROCESS_STATUS_RE = re.compile(
+    r"(?:尚未完成(?:实际)?(?:求解|计算)|尚未(?:实际)?(?:求解|计算|得到结果)|"
+    r"仍待(?:求解|计算|给出)|结果仍待(?:求解|计算|给出))"
+)
+
+LABEL_CHAIN_RE = re.compile(
+    r"“[^”\n]{1,80}—[^”\n]{1,80}—[^”\n]{1,80}”"
+)
+LABEL_CHAIN_FRAME_RE = re.compile(
+    r"(?:研究框架|模型框架|模型链|技术路线|分析框架|分析链条|"
+    r"完整闭环|模型体系|研究体系|一体化流程)"
+)
+
+
+def is_structural_label_context(paragraph: str) -> bool:
+    """Return whether a label chain is likely a figure/table structure."""
+    return any(
+        marker in paragraph
+        for marker in (
+            r"\caption",
+            r"\begin{figure",
+            r"\begin{table",
+            "图题",
+            "表题",
+            "伪代码",
+        )
+    )
+
+
+def has_mechanical_label_chain(paragraph: str) -> bool:
+    """Detect noun-label chains used as continuous-prose scaffolding."""
+    if is_structural_label_context(paragraph):
+        return False
+    return bool(
+        LABEL_CHAIN_RE.search(paragraph)
+        and LABEL_CHAIN_FRAME_RE.search(paragraph)
+    )
+
+
+def review_language_hits(paragraph: str) -> list[str]:
+    """Return non-overlapping review-style phrases for a warning."""
+    hits = [phrase for phrase in REVIEW_LANGUAGE_PHRASES if phrase in paragraph]
+    hits.extend(
+        match.group(0)
+        for pattern in REVIEW_LANGUAGE_REGEXES
+        for match in pattern.finditer(paragraph)
+    )
+    selected: list[str] = []
+    for hit in sorted(set(hits), key=len, reverse=True):
+        if not any(hit in longer for longer in selected):
+            selected.append(hit)
+    return selected
 
 # Context-dependent defensive writing patterns. These are warnings, not bans.
 DEFENSIVE_SCOPE_RE = re.compile(
@@ -65,6 +138,12 @@ HEDGE_TERMS = (
 
 WORKLOG_MARKERS = (
     "首先", "随后", "然后", "接着", "之后", "最后",
+)
+
+# Conservative warning set for passive structures that often reflect direct
+# translation. A bare "被" is not enough to classify a sentence as faulty.
+TRANSLATION_LIKE_PASSIVE_RE = re.compile(
+    r"被(?:用来|用于|认为|视为|称为|定义为|应用于|采用|设置为|选为|看作|当作)"
 )
 
 VAGUE_EVALUATIONS = [
@@ -212,9 +291,39 @@ def main() -> int:
             if phrase in para:
                 warnings.append(f"L{line}: context-dependent AI-like phrase; review necessity: {phrase}")
 
+        review_hits = review_language_hits(para)
+        if review_hits:
+            warnings.append(
+                f"L{line}: Review-language leakage candidate; rewrite final prose as positive scope or direct evidence: "
+                f"{'/'.join(review_hits)}"
+            )
+
+        interface_negations = INTERFACE_NEGATION_RE.findall(para)
+        if len(interface_negations) >= 2:
+            warnings.append(
+                f"L{line}: negative interface-audit stacking; describe each problem's positive inputs, outputs, and purpose"
+            )
+
+        if PROCESS_STATUS_RE.search(para):
+            warnings.append(
+                f"L{line}: work-status meta-prose; state the pending model output or solving objective instead of reporting drafting progress"
+            )
+
+        if has_mechanical_label_chain(para):
+            warnings.append(
+                f"L{line}: mechanical label-chain prose; replace noun labels with explicit causal, progressive, or input-output relations"
+            )
+
         for phrase in VAGUE_EVALUATIONS:
             if phrase in para and not sentence_has_evidence(para, phrase):
                 warnings.append(f"L{line}: vague evaluation without local evidence: {phrase}")
+
+        passive_hits = sorted(set(TRANSLATION_LIKE_PASSIVE_RE.findall(para)))
+        if passive_hits:
+            warnings.append(
+                f"L{line}: passive/translation-like voice; review necessity: "
+                f"{'/'.join(passive_hits)}"
+            )
 
         quote_pairs = min(para.count("“"), para.count("”"))
         if quote_pairs:

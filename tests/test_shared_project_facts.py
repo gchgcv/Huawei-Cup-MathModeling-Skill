@@ -8,7 +8,6 @@ from typing import Any
 
 from jsonschema import Draft202012Validator
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CONTRACT_ROOT = REPO_ROOT / "shared" / "contracts"
 VALIDATOR_PATH = CONTRACT_ROOT / "validate_project_facts.py"

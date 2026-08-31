@@ -10,6 +10,8 @@ Severity 是 Review 的诊断优先级，不是 Shared Standard，也不是投�
 
 Severity 依赖问题影响和证据，不由 Rule ID 固定映射。同一规则在不同上下文可有不同 severity。
 
+`category` 只描述 finding 的具体问题类型，可以使用语义标签；它不能替代正式 `rule_id`。建议的语义标签必须先映射到 Shared Rule，再按证据决定 severity，不得因为标签名称听起来严重就直接判定为 P0 或 P1。
+
 ## Formal finding admission
 
 正式 finding 必须同时具备：

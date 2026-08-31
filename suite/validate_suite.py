@@ -124,6 +124,7 @@ def _validate_component(
             "project_facts_contract_version",
             "review_finding_contract_version",
             "paper_artifact_contract_version",
+            "figure_manifest_contract_version",
         ):
             if key in compatibility and compatibility.get(key) != declaration.get(key):
                 errors.append(f"component:{component_name}:{key}_incompatible")
@@ -182,7 +183,12 @@ def validate_suite(manifest_path: Path) -> dict[str, object]:
                 errors,
                 "shared:paper_quality_standard_registry",
             )
-        for name in ("project_facts", "review_finding", "paper_artifact"):
+        for name in (
+            "project_facts",
+            "review_finding",
+            "paper_artifact",
+            "figure_manifest",
+        ):
             expected_key = f"{name}_contract_version"
             contract = contracts.get(name) if isinstance(contracts, Mapping) else None
             if not isinstance(contract, Mapping) or contract.get(
@@ -208,6 +214,7 @@ def validate_suite(manifest_path: Path) -> dict[str, object]:
             "project_facts_contract_version",
             "review_finding_contract_version",
             "paper_artifact_contract_version",
+            "figure_manifest_contract_version",
         ):
             extended[key] = shared_declaration.get(key)
         extended["shared_bundle_version"] = shared_declaration.get("bundle_version")

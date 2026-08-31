@@ -1,7 +1,7 @@
 interface:
   display_name: "华为杯数学建模论文写作"
   short_description: "基于冻结证据生成和修改中文数学建模论文"
-  default_prompt: "使用 $huawei-cup-writing 处理当前数学建模论文写作任务。默认只输出内容；只有我明确指定主稿并授权写回时才修改文件。先用占位符锁定并逐字符保留完整 LaTeX citation/label/ref token、公式和原始数字，只改写其间的自然语言。默认不得新增派生数字；可复算不等于获准写入。存在改写前文本时必须运行 mutation protector，只有 PASS 才能返回改写正文；失败则修复并重跑，无法运行则保留原文并报告 NOT_RUN。"
+  default_prompt: "使用 $huawei-cup-writing 处理当前数学建模论文写作任务。默认只输出内容；只有我明确指定主稿并授权写回时才修改文件。先判定 evidence_mode：纯改写或冻结事实使用 frozen-rewrite；结果分析使用 evidence-backed-analysis；明确建模、求解或从输入生成结果使用 modeling-or-computation。先用占位符锁定并逐字符保留完整 LaTeX citation/label/ref token、公式和受保护数字。frozen-rewrite 不新增派生数字；另外两种模式可在输入、计算关系、单位和验证记录可追溯时报告派生结果。可复算不等于自动获准写入。存在改写前文本时必须运行 mutation protector，只有 PASS 才能返回改写正文；失败则修复并重跑，无法运行则保留原文并报告 NOT_RUN。"
 
 policy:
   allow_implicit_invocation: true

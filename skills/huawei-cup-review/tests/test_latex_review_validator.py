@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
 import shutil
 import subprocess
@@ -11,6 +12,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "validate_latex_review.py"
+HAS_PAGE_COUNTER = importlib.util.find_spec("fitz") is not None or shutil.which("pdfinfo") is not None
 
 
 def make_pdf(path: Path) -> None:
@@ -35,7 +37,7 @@ def make_pdf(path: Path) -> None:
     path.write_bytes(buf)
 
 
-@pytest.mark.skipif(shutil.which("pdfinfo") is None, reason="pdfinfo unavailable")
+@pytest.mark.skipif(not HAS_PAGE_COUNTER, reason="PyMuPDF and pdfinfo unavailable")
 def test_full_review_passes_for_current_pdf(tmp_path):
     pdf = tmp_path / "paper.pdf"
     make_pdf(pdf)
@@ -47,12 +49,12 @@ def test_full_review_passes_for_current_pdf(tmp_path):
     }
     path = tmp_path / "review.json"
     path.write_text(json.dumps(review), encoding="utf-8")
-    r = subprocess.run([sys.executable, str(SCRIPT), str(path), "--strict"], text=True, capture_output=True)
+    r = subprocess.run([sys.executable, str(SCRIPT), str(path), "--strict"], text=True, capture_output=True, check=False)
     assert r.returncode == 0, r.stderr + r.stdout
     assert "matches the current PDF" in r.stdout
 
 
-@pytest.mark.skipif(shutil.which("pdfinfo") is None, reason="pdfinfo unavailable")
+@pytest.mark.skipif(not HAS_PAGE_COUNTER, reason="PyMuPDF and pdfinfo unavailable")
 def test_hash_change_invalidates_review(tmp_path):
     pdf = tmp_path / "paper.pdf"
     make_pdf(pdf)
@@ -63,6 +65,6 @@ def test_hash_change_invalidates_review(tmp_path):
     }
     path = tmp_path / "review.json"
     path.write_text(json.dumps(review), encoding="utf-8")
-    r = subprocess.run([sys.executable, str(SCRIPT), str(path), "--strict"], text=True, capture_output=True)
+    r = subprocess.run([sys.executable, str(SCRIPT), str(path), "--strict"], text=True, capture_output=True, check=False)
     assert r.returncode == 1
     assert "old visual review is invalid" in r.stderr

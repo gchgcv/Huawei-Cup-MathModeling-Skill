@@ -19,6 +19,9 @@ contracts:
   paper_artifact:
     version: "1"
     path: contracts/paper-artifact-contract.md
+  figure_manifest:
+    version: "1"
+    path: contracts/figure-manifest.json
 
 dependency_policy:
   access: read_only

@@ -95,6 +95,8 @@ def test_writing_catalog_covers_six_legacy_ab_classes() -> None:
     catalog = yaml.safe_load(
         (BENCHMARK_ROOT / "writing" / "cases.yaml").read_text(encoding="utf-8")
     )
+    assert catalog["evidence_mode"] == "frozen-rewrite"
+    assert catalog["numeric_policy"] == "declared_added_numbers_only"
     classes = {case["class"] for case in catalog["cases"]}
     assert {
         "defensive",
@@ -253,6 +255,39 @@ def test_writing_evaluator_separates_fidelity_from_semantic_paraphrase() -> None
     assert result["metrics"]["necessary_limitation_preserved"] is True
 
 
+def test_writing_evaluator_accepts_cause_gap_paraphrase() -> None:
+    module = _load_module("phase6_writing_cause_gap", WRITING_EVALUATOR)
+    catalog = module.load_catalog(BENCHMARK_ROOT / "writing" / "cases.yaml")
+    case = next(item for item in catalog["cases"] if item["id"] == "shallow_result")
+    candidate = {
+        "case_id": "shallow_result",
+        "system_under_test": "modular-writing",
+        "output_text": (
+            "图\\ref{fig:trend}显示，指标由 0.62 上升至 0.79；"
+            "该图表明指标呈上升趋势，但未涉及具体成因。"
+        ),
+    }
+    result = module.evaluate_case(case, candidate)
+    assert result["semantic_status"] == "PASS"
+    assert result["semantic_failures"] == []
+
+
+def test_writing_evaluator_accepts_model_output_item_paraphrase() -> None:
+    module = _load_module("phase6_writing_pending_output", WRITING_EVALUATOR)
+    catalog = module.load_catalog(BENCHMARK_ROOT / "writing" / "cases.yaml")
+    case = next(
+        item for item in catalog["cases"] if item["id"] == "pending_solve_status"
+    )
+    candidate = {
+        "case_id": "pending_solve_status",
+        "system_under_test": "modular-writing",
+        "output_text": "模型的输出项为最终启用集合。",
+    }
+    result = module.evaluate_case(case, candidate)
+    assert result["semantic_status"] == "PASS"
+    assert result["semantic_failures"] == []
+
+
 def test_writing_evaluator_allows_only_declared_derived_numbers() -> None:
     module = _load_module("phase6_writing_derived", WRITING_EVALUATOR)
     case = {
@@ -302,7 +337,9 @@ def test_writing_ab_rejects_modular_semantic_failure(tmp_path: Path) -> None:
     modular_dir = tmp_path / "modular"
     legacy_dir.mkdir()
     modular_dir.mkdir()
-    catalog_path.write_text(yaml.safe_dump(catalog, allow_unicode=True), encoding="utf-8")
+    catalog_path.write_text(
+        yaml.safe_dump(catalog, allow_unicode=True), encoding="utf-8"
+    )
     (legacy_dir / "meaning.json").write_text(
         json.dumps(
             {

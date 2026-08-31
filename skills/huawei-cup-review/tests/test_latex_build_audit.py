@@ -16,7 +16,7 @@ def run(tmp_path: Path, tex: str, log: str, strict: bool = True):
     cmd = [sys.executable, str(SCRIPT), str(tex_path), "--log", str(log_path)]
     if strict:
         cmd.append("--strict")
-    return subprocess.run(cmd, text=True, capture_output=True)
+    return subprocess.run(cmd, text=True, capture_output=True, check=False)
 
 
 def test_clean_build_passes(tmp_path):
@@ -52,7 +52,7 @@ def test_scans_input_subfiles(tmp_path):
     log.write_text("Output written on main.pdf", encoding="utf-8")
     r = subprocess.run(
         [sys.executable, str(SCRIPT), str(main), "--log", str(log), "--strict"],
-        text=True, capture_output=True,
+        text=True, capture_output=True, check=False,
     )
     assert r.returncode == 1
     assert "SOURCE_FILES_SCANNED: 2" in r.stdout

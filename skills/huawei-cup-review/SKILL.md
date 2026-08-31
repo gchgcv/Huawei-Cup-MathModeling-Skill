@@ -38,9 +38,12 @@ description: This skill should be used when the user asks to "审核数学建模
 - `schemas/review-request.schema.json`：只读审核输入契约。
 - `schemas/review-result.schema.json`：v2 结果 envelope，finding 结构引用 Shared Contract。
 - `../../shared/contracts/`：Project Facts、artifact 和 finding 的共享结构。
+- `../../shared/contracts/figure-manifest.json`：canonical 正式图产物集合的共享结构，Review 只读使用。
+- `templates/latex-review.json`：PDF 视觉审核记录模板；Review 不负责将结果写回该模板。
 - `scripts/validate_review_result.py`：schema 与 Shared Rule ID 校验。
 - `scripts/lint_paper_style.py`：保守的文本风格风险检测。
 - `scripts/audit_latex_build.py`：LaTeX 主源与日志检查。
 - `scripts/validate_latex_review.py`：当前 PDF 与视觉审核记录一致性检查。
 - `scripts/verify_docx_math.py`：DOCX 公式结构检查。
 - `scripts/audit_figure_references.py`：LaTeX 图形文件、caption、label 与引用检查。
+- `scripts/audit_canonical_figure_outputs.py`：读取 manifest 的 canonical 图产物只读核对。

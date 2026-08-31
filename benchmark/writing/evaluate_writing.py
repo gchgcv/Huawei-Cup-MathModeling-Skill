@@ -213,11 +213,15 @@ def evaluate_case(
 
 def evaluate_system(catalog_path: Path, results_dir: Path | None) -> dict[str, Any]:
     catalog = load_catalog(catalog_path)
+    evidence_mode = str(catalog.get("evidence_mode", "frozen-rewrite"))
+    numeric_policy = str(catalog.get("numeric_policy", "declared_added_numbers_only"))
     cases = [item for item in catalog["cases"] if isinstance(item, Mapping)]
     if results_dir is None:
         return {
             "status": NOT_RUN,
             "cases_expected": len(cases),
+            "evidence_mode": evidence_mode,
+            "numeric_policy": numeric_policy,
             "metrics": None,
             "limitations": ["candidate_results_not_supplied"],
         }
@@ -227,6 +231,8 @@ def evaluate_system(catalog_path: Path, results_dir: Path | None) -> dict[str, A
         return {
             "status": NOT_RUN,
             "cases_expected": len(cases),
+            "evidence_mode": evidence_mode,
+            "numeric_policy": numeric_policy,
             "metrics": None,
             "limitations": [f"missing_candidate_results:{','.join(missing)}"],
         }
@@ -264,9 +270,7 @@ def evaluate_system(catalog_path: Path, results_dir: Path | None) -> dict[str, A
         ),
         "fact_preservation_rate": rate(results, "protected_elements_unchanged"),
         "key_number_preservation_rate": rate(results, "numbers_preserved"),
-        "numeric_binding_protection_rate": rate(
-            results, "numeric_bindings_preserved"
-        ),
+        "numeric_binding_protection_rate": rate(results, "numeric_bindings_preserved"),
         "formula_preservation_rate": rate(results, "formulas_preserved"),
         "citation_protection_rate": rate(results, "citations_preserved"),
         "label_ref_protection_rate": rate(results, "labels_and_references_preserved"),
@@ -291,6 +295,8 @@ def evaluate_system(catalog_path: Path, results_dir: Path | None) -> dict[str, A
     }
     return {
         "status": "EXECUTED",
+        "evidence_mode": evidence_mode,
+        "numeric_policy": numeric_policy,
         "metrics": metrics,
         "cases": results,
         "limitations": [

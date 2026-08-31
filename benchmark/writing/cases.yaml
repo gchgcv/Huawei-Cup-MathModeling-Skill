@@ -2,6 +2,8 @@ schema_version: 1
 name: phase6-writing-ab-cases
 status: CATALOG_VALIDATED_ONLY
 execution_status: NOT_RUN_AGENT_OUTPUTS_UNAVAILABLE
+evidence_mode: frozen-rewrite
+numeric_policy: declared_added_numbers_only
 candidate_format:
   required: [case_id, system_under_test, output_text]
   system_under_test: [legacy-v0.9.1, modular-writing]
@@ -26,6 +28,16 @@ cases:
     allowed_added_numbers: []
     protected_kinds: []
 
+  - id: passive_voice
+    class: prose_style
+    rules: [PROSE-003, PROSE-006]
+    input_text: '该方法被用来优化锚链质量。'
+    undesirable_patterns: ['被用来']
+    required_phrases: ['优化锚链质量']
+    protected_phrases: ['优化锚链质量']
+    allowed_added_numbers: []
+    protected_kinds: []
+
   - id: shallow_result
     class: shallow_depth
     rules: [DEPTH-002, FIG-005, CLAIM-002]
@@ -38,7 +50,7 @@ cases:
     semantic_assertions:
       - id: supported_mechanism_or_evidence_gap
         kind: argument_depth
-        any_phrases: ['原因', '机制', '约束', '证据不足', '无法解释']
+        any_phrases: ['原因', '成因', '机制', '约束', '证据不足', '无法解释', '未涉及具体成因']
       - id: result_relevance
         kind: argument_depth
         any_phrases: ['意味着', '表明', '说明']
@@ -86,3 +98,69 @@ cases:
       - id: energy_tradeoff_preserved
         kind: negative_evidence
         any_phrases: ['能耗指标上不占优', '能耗指标不占优']
+
+  - id: review_language_isolation
+    class: defensive
+    rules: [ADW-001, ADW-003, ADW-006, PROSE-001]
+    input_text: '现有证据不足以支持该模型适用于所有城市。样本来自 A 市 2024 年数据，模型在当前测试划分下取得 RMSE=5.38。'
+    undesirable_patterns: ['现有证据不足以支持']
+    required_phrases: ['A 市 2024 年数据', 'RMSE=5.38']
+    protected_phrases: ['A 市 2024 年数据', 'RMSE=5.38']
+    allowed_added_numbers: []
+    protected_kinds: [necessary_scope]
+    semantic_assertions:
+      - id: positive_scope_rewrite
+        kind: necessary_scope
+        any_phrases: ['当前测试划分', '模型迁移至其他城市', '重新参数化']
+
+  - id: mechanical_label_chain
+    class: ai_style
+    rules: [AI-005, PROSE-003, STRUCT-001]
+    input_text: '本文构建了“候选点评价—布局优化—扰动分析”的研究框架。'
+    undesirable_patterns: ['构建了“候选点评价—布局优化—扰动分析”的研究框架']
+    required_phrases: ['候选点评价', '布局优化', '扰动分析']
+    protected_phrases: ['候选点评价', '布局优化', '扰动分析']
+    allowed_added_numbers: []
+    protected_kinds: []
+
+  - id: negative_interface_audit
+    class: ai_style
+    rules: [AI-002, PROSE-001, STRUCT-001]
+    input_text: '问题三不使用问题一结果，也不调用问题二结果，不为问题二提供参数。'
+    undesirable_patterns: ['不使用问题一结果', '不调用问题二结果', '不为问题二提供参数']
+    required_phrases: ['问题三']
+    protected_phrases: ['问题一', '问题二', '问题三']
+    allowed_added_numbers: []
+    protected_kinds: []
+    semantic_assertions:
+      - id: positive_interface_relation
+        kind: argument_depth
+        any_phrases: ['输入', '输出', '根据', '用于', '刻画', '独立结论']
+
+  - id: pending_solve_status
+    class: ai_style
+    rules: [AI-001, PROSE-001, STRUCT-001]
+    input_text: '当前尚未完成实际求解，最终启用集合仍待计算。'
+    undesirable_patterns: ['尚未完成实际求解', '仍待计算']
+    required_phrases: ['启用集合']
+    protected_phrases: ['启用集合']
+    allowed_added_numbers: []
+    protected_kinds: []
+    semantic_assertions:
+      - id: pending_output_or_objective
+        kind: argument_depth
+        any_phrases: ['用于确定', '求解得到', '决策变量', '模型输出', '模型的输出项', '输出为', '目标函数']
+
+  - id: weak_result_tradeoff
+    class: shallow_depth
+    rules: [DEPTH-002, DEPTH-005, CLAIM-006]
+    input_text: 'Attention-LSTM 的 RMSE 为 23.5，低于 LSTM 的 23.9；但 MAE 由 17.2 增至 17.6，单次训练时间由 92 s 增至 126 s。'
+    undesirable_patterns: []
+    required_phrases: ['23.5', '23.9', '17.2', '17.6', '92 s', '126 s']
+    protected_phrases: ['Attention-LSTM', 'RMSE', 'MAE', '训练时间']
+    allowed_added_numbers: []
+    protected_kinds: [negative_evidence]
+    semantic_assertions:
+      - id: tradeoff_preserved
+        kind: negative_evidence
+        any_phrases: ['MAE', '训练时间', '计算成本', '代价', '权衡']

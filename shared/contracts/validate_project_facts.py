@@ -11,7 +11,6 @@ from typing import Any
 
 from jsonschema import Draft202012Validator
 
-
 CONTRACT_ROOT = Path(__file__).resolve().parent
 SCHEMA_PATH = CONTRACT_ROOT / "project-facts.schema.json"
 
